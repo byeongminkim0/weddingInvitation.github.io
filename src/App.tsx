@@ -1,5 +1,6 @@
 // App.tsx
-import SageInvite from './SageInvite'
+import ModernWeddingInvite from './ModernWeddingInvite'
+
 export default function App() {
-  return <SageInvite />
+  return <ModernWeddingInvite />
 }
