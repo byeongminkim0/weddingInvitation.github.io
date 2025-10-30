@@ -3,14 +3,12 @@
 /* ==== Base (리셋 & 토큰) ==== */
 @layer base {
   :root {
-    /* 밝고 따뜻한 종이 톤 */
-    --sage-bg: #fdfcf9;
+    /* 밝고 따뜻한 베이지 톤 */
+    --sage-bg: #faf8f3;
+  }
 
-    /* 종이 텍스처 이미지 경로 (JS에서 setProperty로 덮어씀) */
-    --paper-url: url("/bg/paper-bright.svg");
-
-    /* 타일 크기 (필요하면 480px/720px로 조정) */
-    --paper-size: 600px 600px;
+  html {
+    background: #faf8f3;
   }
 
   html, body, #root { height: 100%; }
@@ -19,7 +17,7 @@
 
   body {
     overflow-x: hidden;
-    background: var(--sage-bg);
+    background: #faf8f3;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -33,30 +31,6 @@
 
 /* ==== Utilities ==== */
 @layer utilities {
-  /* 종이질감 배경: 기본은 scroll (모바일 안전), 데스크톱에서만 fixed */
-  .paper-sage {
-    background-color: var(--sage-bg);
-    background-image: var(--paper-url);
-    background-repeat: repeat;
-    background-size: var(--paper-size);
-    background-position: top left;
-    background-attachment: scroll; /* 기본은 안전한 scroll */
-    /* 레이어 분절 방지: 내부 컨텐츠가 가려지지 않도록 z 흐름 유지 */
-  }
-
-  .paper-sage { background-attachment: scroll; }
-  /* 데스크톱(정교한 포인터)에서만 부드러운 fixed */
-  @media (pointer: fine) and (hover: hover) {
-    .paper-sage {
-      background-attachment: fixed;
-    }
-  }
-
-  /* iOS 용량/리페인트 이슈 회피 (사파리 감지) */
-  @supports (-webkit-touch-callout: none) {
-    .paper-sage { background-attachment: scroll; }
-  }
-
   /* iOS에서 fixed + blur 터치 이슈 완화 */
   .ios-fix { -webkit-transform: translateZ(0); transform: translateZ(0); }
 
@@ -66,7 +40,7 @@
 
 /* ==== 인쇄 시 깨끗한 흰 종이 ==== */
 @media print {
-  .paper-sage {
+  body, html {
     background: #ffffff !important;
   }
 }

@@ -23,25 +23,6 @@ const ACCOUNT_GROOM = { bank: "카카오뱅크", num: "3333-12-3456789", name: "
 const ACCOUNT_BRIDE = { bank: "토스뱅크", num: "1000-22-334455", name: "김혜민" };
 
 export default function SageInvite() {
-  /** 종이 텍스처: 파일이 없으면 data-URI 폴백을 주입 */
-  useEffect(() => {
-    const prefersUrl = "/bg/paper-bright.svg";
-    const testImg = new Image();
-    testImg.onload = () => document.documentElement.style.setProperty("--paper-url", `url("${prefersUrl}")`);
-    testImg.onerror = () => {
-      const svg = encodeURIComponent(
-        `<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'>
-           <filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/>
-             <feColorMatrix type='saturate' values='0'/></filter>
-           <rect width='100%' height='100%' fill='#fdfcf9'/>
-           <rect width='100%' height='100%' filter='url(%23n)' fill='rgba(0,0,0,0.035)'/>
-         </svg>`
-      );
-      document.documentElement.style.setProperty("--paper-url", `url("data:image/svg+xml,${svg}")`);
-    };
-    testImg.src = prefersUrl;
-  }, []);
-
   const sections = {
     hero: useRef<HTMLDivElement>(null),
     greet: useRef<HTMLDivElement>(null),
@@ -115,9 +96,9 @@ export default function SageInvite() {
   }
 
   return (
-    <div className={`min-h-screen paper-sage ${SAGE.base}`}>
+    <div className={`min-h-screen bg-[#faf8f3] ${SAGE.base}`}>
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-[#e7ebe3] bg-[color:var(--sage-bg)/.85] backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-[#e7ebe3] bg-white/80 backdrop-blur">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#5f745f] text-white"><Heart className="h-5 w-5" /></span>
@@ -332,7 +313,7 @@ export default function SageInvite() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#e7ebe3] bg-[color:var(--sage-bg)/.85]">
+      <footer className="border-t border-[#e7ebe3] bg-white/80">
         <div className="max-w-3xl mx-auto px-4 py-10 text-center text-sm text-zinc-600">소중한 발걸음에 감사드립니다. 안전하게 오세요 💐</div>
       </footer>
 
@@ -355,7 +336,7 @@ export default function SageInvite() {
       </div>
 
       {/* 하단 액션바 */}
-      <div className="fixed inset-x-0 bottom-0 z-40 bg-[color:var(--sage-bg)/.85] backdrop-blur border-t border-[#e7ebe3]">
+      <div className="fixed inset-x-0 bottom-0 z-40 bg-white/80 backdrop-blur border-t border-[#e7ebe3]">
         <div className="max-w-3xl mx-auto px-4 py-2 grid grid-cols-3 gap-2">
           <Action href={`tel:${TEL_GROOM}`} icon={<Phone className="h-5 w-5" />}>전화</Action>
           <Action onClick={share} icon={<Share2 className="h-5 w-5" />}>공유</Action>
