@@ -512,33 +512,6 @@ function InfoBox({ icon, title, info }: { icon: string; title: string; info: str
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function AccountBox({ bank, num, name, role }: { bank: string; num: string; name: string; role: string }) {
-  async function copyText() {
-    try {
-      await navigator.clipboard.writeText(`${bank} ${num} ${name}`);
-      alert("계좌번호가 복사되었습니다");
-    } catch {
-      prompt("계좌번호를 복사하세요", `${bank} ${num} ${name}`);
-    }
-  }
-
-  return (
-    <Card className="p-4 sm:p-5">
-      <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{role}</p>
-      <p className="text-sm sm:text-base font-medium text-gray-900">{bank}</p>
-      <p className="text-sm sm:text-base text-gray-700 mt-1">{num}</p>
-      <p className="text-xs sm:text-sm text-gray-600 mt-1">예금주: {name}</p>
-      <button
-        onClick={copyText}
-        className={`${MODERN.btn} ${MODERN.soft} w-full mt-3 sm:mt-4 text-xs sm:text-sm`}
-      >
-        계좌번호 복사
-      </button>
-    </Card>
-  );
-}
-
 function AccountBoxSelect({ accounts, role }: { accounts: Array<{ bank: string; num: string; name: string }>; role: string }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selected = accounts[selectedIndex];
