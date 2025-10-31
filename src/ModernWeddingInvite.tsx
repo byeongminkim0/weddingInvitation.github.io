@@ -98,7 +98,7 @@ export default function ModernWeddingInvite() {
   const calendar = buildCalendar(year, month);
 
   /** 갤러리 이미지 (24개) */
-  const galleryImages = Array.from({ length: 24 }, (_, i) => `/gallery/photo${i + 1}.jpg`);
+  const galleryImages = Array.from({ length: 24 }, (_, i) => `/gallery/gallery${i + 1}.jpg`);
 
   /** 공유 기능 */
   async function share() {
@@ -217,6 +217,7 @@ export default function ModernWeddingInvite() {
 
       {/* 7. 갤러리 */}
       <EllipseBadge text="GALLERY" />
+      <br />
       <section ref={sections.gallery} className="max-w-6xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-1.5 sm:gap-2">
           {galleryImages.map((image, index) => (
@@ -249,12 +250,12 @@ export default function ModernWeddingInvite() {
 
           {/* 캘린더 */}
           <div className="max-w-md mx-auto">
-            <div className="bg-gradient-to-r from-rose-400 to-rose-500 text-white rounded-t-2xl py-3 text-center">
+            {/* <div className="bg-gradient-to-r from-rose-400 to-rose-500 text-white rounded-t-2xl py-3 text-center">
               <p className="text-sm font-medium">{year}년 {month + 1}월</p>
-            </div>
+            </div> */}
             <div className="bg-white/50 backdrop-blur-sm rounded-b-2xl overflow-hidden">
               <div className="grid grid-cols-7 text-center text-sm bg-white/30 py-2">
-                {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
+                {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
                   <div key={day} className="text-gray-600">{day}</div>
                 ))}
               </div>
@@ -276,6 +277,48 @@ export default function ModernWeddingInvite() {
                 })}
               </div>
             </div>
+          </div>
+        </Card>
+      </section>
+
+      {/* 9. 오시는 길 상세 (교통수단) */}
+      <section ref={sections.directions} className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 text-center">
+          오시는 길
+        </h2>
+
+        {/* 지도 */}
+          <div className="bg-gradient-to-br from-gray-100 to-gray-50 h-60 sm:h-80 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 flex flex-col items-center justify-center">
+            <MapPin className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
+            <span className="ml-2 text-sm sm:text-base text-gray-500">지도 API 연동 영역</span>
+          </div>
+
+          {/* 길찾기 버튼 */}
+          <div className="flex justify-center gap-2 sm:gap-3">
+            <a
+              href={MAP_LINK_KAKAO}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${MODERN.btn} ${MODERN.primary}`}
+            >
+              카카오맵 길찾기
+            </a>
+            <a
+              href={MAP_LINK_NAVER}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${MODERN.btn} ${MODERN.soft}`}
+            >
+              네이버 길찾기
+            </a>
+          </div>
+
+        <Card className="p-4 sm:p-6">
+          {/* 교통 정보 */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
+            <InfoBox icon="🚇" title="지하철" info="2호선 강남역 3번 출구 도보 5분" />
+            <InfoBox icon="🚌" title="버스" info="간선 140, 148, 360, 740" />
+            <InfoBox icon="🚗" title="주차" info="건물 내 주차장 2시간 무료" />
           </div>
         </Card>
       </section>
@@ -318,7 +361,7 @@ export default function ModernWeddingInvite() {
       </section>
 
       {/* 8. 지도 (정확한 위치) */}
-      <section ref={sections.location} className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+      {/* <section ref={sections.location} className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
         <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-3 sm:mb-4 text-center">
           정확한 위치
         </h2>
@@ -330,49 +373,9 @@ export default function ModernWeddingInvite() {
             <p className="text-gray-500 text-xs sm:text-sm">{FLOOR}</p>
           </div>
 
-          {/* 지도 */}
-          <div className="bg-gradient-to-br from-gray-100 to-gray-50 h-60 sm:h-80 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 flex flex-col items-center justify-center">
-            <MapPin className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
-            <span className="ml-2 text-sm sm:text-base text-gray-500">지도 API 연동 영역</span>
-          </div>
-
-          {/* 길찾기 버튼 */}
-          <div className="flex justify-center gap-2 sm:gap-3">
-            <a
-              href={MAP_LINK_KAKAO}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${MODERN.btn} ${MODERN.primary}`}
-            >
-              카카오맵 길찾기
-            </a>
-            <a
-              href={MAP_LINK_NAVER}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${MODERN.btn} ${MODERN.soft}`}
-            >
-              네이버 길찾기
-            </a>
-          </div>
+          
         </Card>
-      </section>
-
-      {/* 9. 오시는 길 상세 (교통수단) */}
-      <section ref={sections.directions} className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 text-center">
-          오시는 길
-        </h2>
-
-        <Card className="p-4 sm:p-6">
-          {/* 교통 정보 */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
-            <InfoBox icon="🚇" title="지하철" info="2호선 강남역 3번 출구 도보 5분" />
-            <InfoBox icon="🚌" title="버스" info="간선 140, 148, 360, 740" />
-            <InfoBox icon="🚗" title="주차" info="건물 내 주차장 2시간 무료" />
-          </div>
-        </Card>
-      </section>
+      </section> */}
 
       {/* 10. 마음 전하실 곳 */}
       <section ref={sections.account} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
