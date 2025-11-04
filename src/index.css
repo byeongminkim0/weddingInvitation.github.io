@@ -4,11 +4,11 @@
 @layer base {
   :root {
     /* 밝고 따뜻한 베이지 톤 */
-    --sage-bg: #faf8f3;
+    --sage-bg: #ffffff;
   }
 
   html {
-    background: #faf8f3;
+    background: #ffffff;
   }
 
   html, body, #root { height: 100%; }
@@ -17,7 +17,7 @@
 
   body {
     overflow-x: hidden;
-    background: #faf8f3;
+    background: #ffffff;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
