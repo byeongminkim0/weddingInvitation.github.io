@@ -103,325 +103,332 @@ export default function ModernWeddingInvite() {
   }
 
   return (
-    <div className={`min-h-screen bg-white pb-32 ${MODERN.base}`}>
-      {/* Header - Full Width */}
-      <header className="sticky top-0 z-40 bg-white backdrop-blur-md border-b border-gray-200">
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-2">
-            <Heart className="h-6 w-6 text-rose-500" />
-            <span className="font-semibold text-gray-900">{BRIDE.name} ❤️ {GROOM.name}</span>
-          </div>
-          <nav className="hidden sm:flex items-center gap-2">
-            <Pill onClick={() => scrollTo(sections.greeting.current)}>인사말</Pill>
-            <Pill onClick={() => scrollTo(sections.calendar.current)}>일정</Pill>
-            <Pill onClick={() => scrollTo(sections.location.current)}>오시는길</Pill>
-            <Pill onClick={() => scrollTo(sections.gallery.current)}>갤러리</Pill>
-          </nav>
-        </div>
-      </header>
+    <div className={`min-h-screen bg-gray-100 pb-32`}>
+      {/* 메인 컨테이너 - 모바일 폭으로 제한 */}
+      <div className="max-w-lg mx-auto bg-white shadow-2xl min-h-screen">
+        <div className={MODERN.base}>
+          {/* Header - Full Width */}
+<header className="sticky top-0 z-40 bg-white backdrop-blur-md border-b border-gray-200">
+  <div className="w-full px-4 py-4 flex items-center justify-between">
+    <div className="flex items-center gap-2 whitespace-nowrap overflow-hidden">
+      <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-rose-500 flex-shrink-0" />
+      <span className="font-semibold text-sm sm:text-base text-gray-900 truncate">
+        {BRIDE.name} ❤️ {GROOM.name}
+      </span>
+    </div>
+    <nav className="hidden sm:flex items-center gap-2 flex-shrink-0">
+      <Pill onClick={() => scrollTo(sections.greeting.current)}>인사말</Pill>
+      <Pill onClick={() => scrollTo(sections.calendar.current)}>일정</Pill>
+      <Pill onClick={() => scrollTo(sections.location.current)}>오시는길</Pill>
+      <Pill onClick={() => scrollTo(sections.gallery.current)}>갤러리</Pill>
+    </nav>
+  </div>
+</header>
 
-      {/* Hero - 메인 웨딩 사진 */}
-      <section ref={sections.hero} className="pt-4 sm:pt-8 pb-8 sm:pb-12">
-        <figure className="relative shadow-xl">
-          {/* 메인 이미지 */}
-          <SmartImage
-            src="/main.jpg"
-            alt="Wedding Photo"
-            className="w-full h-auto object-cover"
-            aspect="3/4"
-          />
-          
-          {/* 상단 텍스트 오버레이 */}
-          <div className="absolute top-0 left-0 right-0 pt-6 sm:pt-8 text-center">
-            <p className="text-black text-base sm:text-sm font-medium drop-shadow-lg">
-              {year}.{String(month + 1).padStart(2, '0')}.{String(date).padStart(2, '0')} 토요일 오후 2시
-            </p>
-            <p className="text-black text-2xl sm:text-2xl font-bold drop-shadow-lg">
-              김{GROOM.name}♥김{BRIDE.name}
-            </p>
-          </div>
-
-          {/* 하단 필기체 텍스트 - 강하게 기울임 */}
-          <div className="absolute -bottom-4 sm:-bottom-8 left-0 right-0 flex justify-center">
-            <img 
-              src="/we-getting-married.png" 
-              alt="We getting married" 
-              className="w-2/3 sm:w-1/2 drop-shadow-2xl"
-            />
-          </div>
-        </figure>
-      </section>
-
-      {/* 초대 메시지 (Text - 결혼안내) */}
-      <section ref={sections.greeting} className="max-w-2xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
-        <Card className="p-6 sm:p-8 text-center">
-          <EllipseBadge text="INVITATION" />
-          <br />
-          <br />
-          <h1 className="text-2xl sm:text-3xl font-serif text-gray-900 mb-4 sm:mb-6">
-            소중한 분들을 모십니다
-          </h1>
-          <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed">
-            <p>
-              어릴 적 스치듯 지나가던 작은 인사가<br />
-              긴 시간의 여백을 건너<br />
-              서로의 마음으로 단단히 자리하였습니다.<br />
-              이제 저희 두 사람이<br />
-              담담히 한 길을 약속하고자 합니다.
-            </p>
-            <p>
-              그동안 보내 주신<br />
-              응원과 정을 깊이 기억하며,<br />
-              이날 오셔서 기꺼이 내어 주신귀한 걸음으로<br />
-              따뜻한 축복을 보태 주신다면<br />
-              저희에게 더없는 기쁨과 큰 힘이 될 것입니다.
-            </p>
-          </div>
-        </Card>
-      </section>
-
-      {/* 신랑신부 정보 */}
-      <section ref={sections.profiles} className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12 relative">
-        <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6">
-          <ProfileCard person={GROOM} role="신랑" />
-          <ProfileCard person={BRIDE} role="신부" />
-        </div>
-        
-        {/* 중앙 하트 */}
-        <div className="absolute top-6 sm:top-16 left-1/2 transform -translate-x-1/2 z-10">
-          <div className="p-16 sm:p-16">
-            <img 
-              src="/heart.svg" 
-              alt="heart" 
-              className="w-full h-auto"
-            />
-          </div>
-        </div>
-      </section>
-
-      <EllipseBadge text="OUR TIME" />
-      <div className="text-center py-8">
-        <p className="text-xs text-gray-600 mb-2">{GROOM.name}과 {BRIDE.name}이 함께한지</p>
-        <TimeSince
-          startDate="2020-03-21T00:00:00+09:00"
-          className="font-bold text-lg text-gray-800"
-        />
-      </div>
-
-      {/* 스토리 섹션 */}
-      <section ref={sections.story} className="pb-8 sm:pb-12">
-        <div className="w-full">
-          <img 
-            src="/story1.png" 
-            alt="Our Story" 
-            className="w-full h-auto"
-          />
-          <img 
-            src="/story2.png" 
-            alt="Our Story" 
-            className="w-full h-auto"
-          />
-          <img 
-            src="/story3.png" 
-            alt="Our Story" 
-            className="w-full h-auto"
-          />
-        </div>
-      </section>
-
-      {/* 갤러리 */}
-      <EllipseBadge text="GALLERY" />
-      <br />
-      <section ref={sections.gallery} className="max-w-6xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-1.5 sm:gap-2">
-          {galleryImages.map((image, index) => (
-            <figure
-              key={index}
-              className="aspect-square overflow-hidden rounded-md sm:rounded-lg hover:opacity-80 transition cursor-pointer"
-            >
+          {/* Hero - 메인 웨딩 사진 */}
+          <section ref={sections.hero} className="pt-4 sm:pt-8 pb-8 sm:pb-12">
+            <figure className="relative shadow-xl">
+              {/* 메인 이미지 */}
               <SmartImage
-                src={image}
-                alt={`Gallery ${index + 1}`}
-                className="w-full h-full object-cover"
-                aspect="1/1"
+                src="/main.jpg"
+                alt="Wedding Photo"
+                className="w-full h-auto object-cover"
+                aspect="3/4"
               />
-            </figure>
-          ))}
-        </div>
-      </section>
 
-      {/* 캘린더 & D-DAY */}
-      <section ref={sections.calendar} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
-        <Card className="p-4 sm:p-8">
-          <div className="text-center mb-6 sm:mb-8">
-            <EllipseBadge text="WEDDING DAY" />
-            <br />
-            <p className="text-sm sm:text-base text-gray-900 font-bold">
-              {year}년 {month + 1}월 {date}일 토요일 오후 2시<br />
-              {VENUE_NAME}<br /><br />
-              {ADDRESS}<br />
-              {FLOOR}
-            </p>
-          </div>
-          {/* 캘린더 */}
-          <div className="max-w-md mx-auto">
-            <div className="bg-white backdrop-blur-sm rounded-b-2xl overflow-hidden">
-              <div className="grid grid-cols-7 text-center py-2">
-                {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
-                  <div key={day} className={`font-bold ${index === 0 ? "text-red-500" : "text-gray-600"}`}>
-                    {day}
-                  </div>
-                ))}
+              {/* 상단 텍스트 오버레이 */}
+              <div className="absolute top-0 left-0 right-0 pt-6 sm:pt-8 text-center">
+                <p className="text-black text-base sm:text-sm font-medium drop-shadow-lg">
+                  {year}.{String(month + 1).padStart(2, '0')}.{String(date).padStart(2, '0')} 토요일 오후 2시
+                </p>
+                <p className="text-black text-2xl sm:text-2xl font-bold drop-shadow-lg">
+                  김{GROOM.name}♥김{BRIDE.name}
+                </p>
               </div>
-              <div className="grid grid-cols-7 bg-white">
-                {calendar.map((cell, i) => {
-                  const isWeddingDay = cell.y === year && cell.m === month && cell.d === date;
-                  const isSunday = cell.d && new Date(cell.y, cell.m, cell.d).getDay() === 0;
-                  
-                  return (
-                    <div key={i} className="aspect-square flex items-center justify-center">
-                      {cell.d && (
-                        <span className={`
-                          inline-flex h-10 w-10 items-center justify-center rounded-full
-                          ${isWeddingDay ? "bg-rose-500 text-white font-bold" : 
-                            isSunday ? "text-red-500 font-bold" : "text-gray-700"}
-                        `}>
-                          {cell.d}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
+
+              {/* 하단 필기체 텍스트 - 강하게 기울임 */}
+              <div className="absolute -bottom-4 sm:-bottom-8 left-0 right-0 flex justify-center">
+                <img
+                  src="/we-getting-married.png"
+                  alt="We getting married"
+                  className="w-2/3 sm:w-1/2 drop-shadow-2xl"
+                />
+              </div>
+            </figure>
+          </section>
+
+          {/* 초대 메시지 (Text - 결혼안내) */}
+          <section ref={sections.greeting} className="max-w-2xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+            <Card className="p-6 sm:p-8 text-center">
+              <EllipseBadge text="INVITATION" />
+              <br />
+              <br />
+              <h1 className="text-2xl sm:text-3xl font-serif text-gray-900 mb-4 sm:mb-6">
+                소중한 분들을 모십니다
+              </h1>
+              <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed">
+                <p>
+                  어릴 적 스치듯 지나가던 작은 인사가<br />
+                  긴 시간의 여백을 건너<br />
+                  서로의 마음으로 단단히 자리하였습니다.<br />
+                  이제 저희 두 사람이<br />
+                  담담히 한 길을 약속하고자 합니다.
+                </p>
+                <p>
+                  그동안 보내 주신<br />
+                  응원과 정을 깊이 기억하며,<br />
+                  이날 오셔서 기꺼이 내어 주신귀한 걸음으로<br />
+                  따뜻한 축복을 보태 주신다면<br />
+                  저희에게 더없는 기쁨과 큰 힘이 될 것입니다.
+                </p>
+              </div>
+            </Card>
+          </section>
+
+          {/* 신랑신부 정보 */}
+          <section ref={sections.profiles} className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12 relative">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6">
+              <ProfileCard person={GROOM} role="신랑" />
+              <ProfileCard person={BRIDE} role="신부" />
+            </div>
+
+            {/* 중앙 하트 */}
+            <div className="absolute top-6 sm:top-16 left-1/2 transform -translate-x-1/2 z-10">
+              <div className="p-16 sm:p-16">
+                <img
+                  src="/heart.svg"
+                  alt="heart"
+                  className="w-full h-auto"
+                />
               </div>
             </div>
-          </div>
-        </Card>
-      </section>
+          </section>
 
-      {/* 오시는 길 상세 (교통수단) */}
-      <section ref={sections.directions} className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 text-center">
-          오시는 길
-        </h2>
-        {/* 지도 + 네비 버튼 (붙어있는 형태) */}
-        <div className="mb-4 sm:mb-6 overflow-hidden shadow-lg">
-          {/* 지도 */}
-          <div className="bg-gradient-to-br from-gray-100 to-gray-50 h-60 sm:h-80 flex flex-col items-center justify-center">
-            <MapPin className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
-            <span className="ml-2 text-sm sm:text-base text-gray-500">지도 API 연동 영역</span>
+          <EllipseBadge text="OUR TIME" />
+          <div className="text-center py-8">
+            <p className="text-xs text-gray-600 mb-2">{GROOM.name}과 {BRIDE.name}이 함께한지</p>
+            <TimeSince
+              startDate="2020-03-21T00:00:00+09:00"
+              className="font-bold text-lg text-gray-800"
+            />
           </div>
 
-          {/* 네비게이션 버튼 3개 */}
-          <div className="grid grid-cols-3 bg-black">
-            <a href={MAP_LINK_NAVER} target="_blank" rel="noopener noreferrer" className="py-3 sm:py-4 text-center text-white text-xs sm:text-sm font-bold hover:bg-gray-800 transition border-r border-gray-700">
-              네이버지도 내비
-            </a>
-            <a href={MAP_LINK_KAKAO} target="_blank" rel="noopener noreferrer" className="py-3 sm:py-4 text-center text-white text-xs sm:text-sm font-bold hover:bg-gray-800 transition border-r border-gray-700">
-              카카오맵 내비
-            </a>
-            <a href={MAP_LINK_TMAP} target="_blank" rel="noopener noreferrer" className="py-3 sm:py-4 text-center text-white text-xs sm:text-sm font-bold hover:bg-gray-800 transition">
-              T맵 내비
-            </a>
-          </div>
-        </div>
-        <Card className="p-4 sm:p-6">
-          {/* 교통 정보 */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
-            <InfoBox icon="🚗" title="자가용 & 주차" info="구로공구상가 주차장 검색
-최대5시간 무료 주차" />
-            <InfoBox icon="🚇" title="지하철" info="1호선 구로역 1번 출구 하차
-출구 나와서 우측 신호등 건너서 도보 1분" />
-            <InfoBox icon="🚌" title="안강 셔틀버스" info="한동아파트 앞 버스정류장에서 오전 8시까지 탑승
-* 오후 4시에 서울에서 출발합니다" />
-          </div>
-        </Card>
-      </section>
+          {/* 스토리 섹션 */}
+          <section ref={sections.story} className="pb-8 sm:pb-12">
+            <div className="w-full">
+              <img
+                src="/story1.png"
+                alt="Our Story"
+                className="w-full h-auto"
+              />
+              <img
+                src="/story2.png"
+                alt="Our Story"
+                className="w-full h-auto"
+              />
+              <img
+                src="/story3.png"
+                alt="Our Story"
+                className="w-full h-auto"
+              />
+            </div>
+          </section>
 
-      {/* 마음 전하실 곳 */}
-      <section ref={sections.account} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
-        <Card className="p-6 sm:p-8 text-center">
-        <EllipseBadge text="INFORMATION" />
-        <br />
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 text-center">
-          마음 전하실 곳
-        </h2>
-
-        <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed">
-          <p>
-            직접 축하를 전해주시기 어려운 분들을 위해<br />
-            아래에 계좌 안내를 드립니다<br />
-            <br />
-            따뜻한 마음만으로도 큰 축복이 됩니다.<br />
-            <br />
-          </p>
-          <p>
-            환경을 위하여 화환·꽃바구니는 받지 않습니다.<br />
-            귀한 마음은 축복으로 전해 주시면 감사하겠습니다.<br />
-          </p>
-        </div>
-        </Card>
-
-        <div className="grid md:grid-cols-2 gap-3 sm:gap-4">
-          <AccountBoxSelect accounts={ACCOUNTS_GROOM} role="신랑측 계좌" />
-          <AccountBoxSelect accounts={ACCOUNTS_BRIDE} role="신부측 계좌" />
-        </div>
-      </section>
-
-      {/* 감사 메시지 섹션 */}
-      <section className="pb-8 sm:pb-12">
-        {/* 이미지 */}
-          <img 
-            src="/wide.png" 
-            alt="Thank you" 
-            className="w-full h-auto object-cover"
-          />
-        <Card className="p-6 sm:p-8 text-center">
+          {/* 갤러리 */}
+          <EllipseBadge text="GALLERY" />
           <br />
-          {/* 메시지 */}
-          <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-black-700 leading-relaxed">
-            <p>
-              오랜 이어진 인사가 오늘 약속이 됩니다.<br />
-              오셔서 따뜻히 축복해 주세요.<br />
-              그 마음 꼭 기억할게요.
-            </p>
-          </div>
-          
-          {/* 구분선 */}
-          <div className="my-4 sm:my-6">
-            <div className="w-24 h-px bg-gray-800 mx-auto"></div>
-          </div>
-          
-          {/* 이름 */}
-          <p className="text-base sm:text-lg font-medium text-gray-900">
-            {BRIDE.name}과 {GROOM.name}
-          </p>
-        </Card>
-      </section>
+          <section ref={sections.gallery} className="max-w-6xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-1.5 sm:gap-2">
+              {galleryImages.map((image, index) => (
+                <figure
+                  key={index}
+                  className="aspect-square overflow-hidden rounded-md sm:rounded-lg hover:opacity-80 transition cursor-pointer"
+                >
+                  <SmartImage
+                    src={image}
+                    alt={`Gallery ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    aspect="1/1"
+                  />
+                </figure>
+              ))}
+            </div>
+          </section>
 
-      {/* Footer */}
-      <footer className="py-8 sm:py-12 text-center text-gray-500 text-xs sm:text-sm mb-20">
-        <p>© 2026 Wedding Invitation</p>
-        <p className="mt-2">감사합니다 💝</p>
-      </footer>
+          {/* 캘린더 & D-DAY */}
+          <section ref={sections.calendar} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+            <Card className="p-4 sm:p-8">
+              <div className="text-center mb-6 sm:mb-8">
+                <EllipseBadge text="WEDDING DAY" />
+                <br />
+                <p className="text-sm sm:text-base text-gray-900 font-bold">
+                  {year}년 {month + 1}월 {date}일 토요일 오후 2시<br />
+                  {VENUE_NAME}<br /><br />
+                  {ADDRESS}<br />
+                  {FLOOR}
+                </p>
+              </div>
+              {/* 캘린더 */}
+              <div className="max-w-md mx-auto">
+                <div className="bg-white backdrop-blur-sm rounded-b-2xl overflow-hidden">
+                  <div className="grid grid-cols-7 text-center py-2">
+                    {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
+                      <div key={day} className={`font-bold ${index === 0 ? "text-red-500" : "text-gray-600"}`}>
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 bg-white">
+                    {calendar.map((cell, i) => {
+                      const isWeddingDay = cell.y === year && cell.m === month && cell.d === date;
+                      const isSunday = cell.d && new Date(cell.y, cell.m, cell.d).getDay() === 0;
 
-      {/* 하단 액션바 */}
-      <div className="fixed inset-x-0 bottom-0 z-40 bg-white backdrop-blur-md shadow-xl border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex justify-center gap-2 sm:gap-3">
-          <ActionButton
-            href={`tel:${TEL_GROOM}`}
-            icon={<Phone className="h-5 w-5" />}
-            label="전화하기"
-          />
-          <ActionButton
-            onClick={share}
-            icon={<Share2 className="h-5 w-5" />}
-            label="공유하기"
-          />
-          <ActionButton
-            href={MAP_LINK_KAKAO}
-            icon={<MapPin className="h-5 w-5" />}
-            label="길찾기"
-          />
+                      return (
+                        <div key={i} className="aspect-square flex items-center justify-center">
+                          {cell.d && (
+                            <span className={`
+                          inline-flex h-10 w-10 items-center justify-center rounded-full
+                          ${isWeddingDay ? "bg-rose-500 text-white font-bold" :
+                                isSunday ? "text-red-500 font-bold" : "text-gray-700"}
+                        `}>
+                              {cell.d}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </section>
+
+          {/* 오시는 길 상세 (교통수단) */}
+          <section ref={sections.directions} className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 text-center">
+              오시는 길
+            </h2>
+            {/* 지도 + 네비 버튼 (붙어있는 형태) */}
+            <div className="mb-4 sm:mb-6 overflow-hidden shadow-lg">
+              {/* 지도 */}
+              <div className="bg-gradient-to-br from-gray-100 to-gray-50 h-60 sm:h-80 flex flex-col items-center justify-center">
+                <MapPin className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
+                <span className="ml-2 text-sm sm:text-base text-gray-500">지도 API 연동 영역</span>
+              </div>
+
+              {/* 네비게이션 버튼 3개 */}
+              <div className="grid grid-cols-3 bg-black">
+                <a href={MAP_LINK_NAVER} target="_blank" rel="noopener noreferrer" className="py-3 sm:py-4 text-center text-white text-xs sm:text-sm font-bold hover:bg-gray-800 transition border-r border-gray-700">
+                  네이버지도 내비
+                </a>
+                <a href={MAP_LINK_KAKAO} target="_blank" rel="noopener noreferrer" className="py-3 sm:py-4 text-center text-white text-xs sm:text-sm font-bold hover:bg-gray-800 transition border-r border-gray-700">
+                  카카오맵 내비
+                </a>
+                <a href={MAP_LINK_TMAP} target="_blank" rel="noopener noreferrer" className="py-3 sm:py-4 text-center text-white text-xs sm:text-sm font-bold hover:bg-gray-800 transition">
+                  T맵 내비
+                </a>
+              </div>
+            </div>
+            <Card className="p-4 sm:p-6">
+              {/* 교통 정보 */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
+                <InfoBox icon="🚗" title="자가용 & 주차" info="구로공구상가 주차장 검색
+최대5시간 무료 주차" />
+                <InfoBox icon="🚇" title="지하철" info="1호선 구로역 1번 출구 하차
+출구 나와서 우측 신호등 건너서 도보 1분" />
+                <InfoBox icon="🚌" title="안강 셔틀버스" info="한동아파트 앞 버스정류장에서 오전 8시까지 탑승
+* 오후 4시에 서울에서 출발합니다" />
+              </div>
+            </Card>
+          </section>
+
+          {/* 마음 전하실 곳 */}
+          <section ref={sections.account} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+            <Card className="p-6 sm:p-8 text-center">
+              <EllipseBadge text="INFORMATION" />
+              <br />
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 text-center">
+                마음 전하실 곳
+              </h2>
+
+              <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed">
+                <p>
+                  직접 축하를 전해주시기 어려운 분들을 위해<br />
+                  아래에 계좌 안내를 드립니다<br />
+                  <br />
+                  따뜻한 마음만으로도 큰 축복이 됩니다.<br />
+                  <br />
+                </p>
+                <p>
+                  환경을 위하여 화환·꽃바구니는 받지 않습니다.<br />
+                  귀한 마음은 축복으로 전해 주시면 감사하겠습니다.<br />
+                </p>
+              </div>
+            </Card>
+
+            <div className="grid md:grid-cols-2 gap-3 sm:gap-4">
+              <AccountBoxSelect accounts={ACCOUNTS_GROOM} role="신랑측 계좌" />
+              <AccountBoxSelect accounts={ACCOUNTS_BRIDE} role="신부측 계좌" />
+            </div>
+          </section>
+
+          {/* 감사 메시지 섹션 */}
+          <section className="pb-8 sm:pb-12">
+            {/* 이미지 */}
+            <img
+              src="/wide.png"
+              alt="Thank you"
+              className="w-full h-auto object-cover"
+            />
+            <Card className="p-6 sm:p-8 text-center">
+              <br />
+              {/* 메시지 */}
+              <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-black-700 leading-relaxed">
+                <p>
+                  오랜 이어진 인사가 오늘 약속이 됩니다.<br />
+                  오셔서 따뜻히 축복해 주세요.<br />
+                  그 마음 꼭 기억할게요.
+                </p>
+              </div>
+
+              {/* 구분선 */}
+              <div className="my-4 sm:my-6">
+                <div className="w-24 h-px bg-gray-800 mx-auto"></div>
+              </div>
+
+              {/* 이름 */}
+              <p className="text-base sm:text-lg font-medium text-gray-900">
+                {BRIDE.name}과 {GROOM.name}
+              </p>
+            </Card>
+          </section>
+
+          {/* Footer */}
+          <footer className="py-8 sm:py-12 text-center text-gray-500 text-xs sm:text-sm mb-20">
+            <p>© 2026 Wedding Invitation</p>
+            <p className="mt-2">감사합니다 💝</p>
+          </footer>
+
+          {/* 하단 액션바 */}
+          <div className="fixed inset-x-0 bottom-0 z-40 bg-white backdrop-blur-md shadow-xl border-t border-gray-200">
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex justify-center gap-2 sm:gap-3">
+              <ActionButton
+                href={`tel:${TEL_GROOM}`}
+                icon={<Phone className="h-5 w-5" />}
+                label="전화하기"
+              />
+              <ActionButton
+                onClick={share}
+                icon={<Share2 className="h-5 w-5" />}
+                label="공유하기"
+              />
+              <ActionButton
+                href={MAP_LINK_KAKAO}
+                icon={<MapPin className="h-5 w-5" />}
+                label="길찾기"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
