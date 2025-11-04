@@ -473,8 +473,7 @@ const EllipseBadge: React.FC<BadgeProps> = ({ text }) => {
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function InfoBox({ icon, title, info }: { icon: string; title: string; info: string }) {
+function InfoBox({ title, info }: { icon: string; title: string; info: string }) {
   return (
     <div className="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl text-left">
       {/* <div className="text-xl sm:text-2xl mb-1.5 sm:mb-2">{icon}</div> */}
@@ -484,8 +483,7 @@ function InfoBox({ icon, title, info }: { icon: string; title: string; info: str
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function AccountBoxSelect({ accounts, role }: { accounts: Array<{ bank: string; num: string; name: string }>; role: string }) {
+function AccountBoxSelect({ accounts }: { accounts: Array<{ bank: string; num: string; name: string }>; role: string }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   // const selected = accounts[selectedIndex];
 
