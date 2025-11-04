@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Calendar as MapPin, Phone, Share2, Heart, User } from "lucide-react";
+import { Calendar as MapPin, Phone, User } from "lucide-react";
 import { TimeSince } from "./components/TimeSince";
 
 /** ===== 디자인 토큰 ===== */
@@ -16,8 +16,6 @@ const MODERN = {
 const WEDDING_DATE = "2026-06-13T14:00:00+09:00"; // 2026년 6월 13일 오후 2시
 // const OUR_DATE = "2020-03-21T00:00:00+09:00";
 const VENUE_NAME = "제이오스티엘";
-const ADDRESS = "서울시 강남구 테헤란로 123";
-const FLOOR = "3층 그랜드볼룸";
 const TEL_GROOM = "010-1234-5678";
 const TEL_BRIDE = "010-9876-5432";
 const MAP_LINK_KAKAO = "https://map.kakao.com/";
@@ -69,7 +67,7 @@ export default function ModernWeddingInvite() {
     account: useRef<HTMLDivElement>(null),
   } as const;
 
-  const scrollTo = (el?: HTMLElement | null) => el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  // const scrollTo = (el?: HTMLElement | null) => el?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   /** 카운트다운 */
   const weddingDate = useMemo(() => new Date(WEDDING_DATE), []);
@@ -83,82 +81,45 @@ export default function ModernWeddingInvite() {
   /** 갤러리 이미지 (24개) */
   const galleryImages = Array.from({ length: 24 }, (_, i) => `/gallery/gallery${i + 1}.jpg`);
 
-  /** 공유 기능 */
-  async function share() {
-    const data = {
-      title: "결혼식에 초대합니다",
-      text: `${GROOM.name} ❤️ ${BRIDE.name}의 결혼식에 초대합니다. ${year}년 ${month + 1}월 ${date}일`,
-      url: window.location.href
-    };
-    try {
-      if (navigator.share) {
-        await navigator.share(data);
-      } else {
-        await navigator.clipboard.writeText(data.url);
-        alert("링크가 복사되었습니다");
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
   return (
-    <div className={`min-h-screen bg-gray-100 pb-32`}>
-      {/* 메인 컨테이너 - 모바일 폭으로 제한 */}
-      <div className="max-w-lg mx-auto bg-white shadow-2xl min-h-screen">
-        <div className={MODERN.base}>
-          {/* Header - Full Width */}
-<header className="sticky top-0 z-40 bg-white backdrop-blur-md border-b border-gray-200">
-  <div className="w-full px-4 py-4 flex items-center justify-between">
-    <div className="flex items-center gap-2 whitespace-nowrap overflow-hidden">
-      <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-rose-500 flex-shrink-0" />
-      <span className="font-semibold text-sm sm:text-base text-gray-900 truncate">
-        {BRIDE.name} ❤️ {GROOM.name}
-      </span>
-    </div>
-    <nav className="hidden sm:flex items-center gap-2 flex-shrink-0">
-      <Pill onClick={() => scrollTo(sections.greeting.current)}>인사말</Pill>
-      <Pill onClick={() => scrollTo(sections.calendar.current)}>일정</Pill>
-      <Pill onClick={() => scrollTo(sections.location.current)}>오시는길</Pill>
-      <Pill onClick={() => scrollTo(sections.gallery.current)}>갤러리</Pill>
-    </nav>
-  </div>
-</header>
+    <div className={`min-h-screen bg-gray-100 overflow-visible`}>
+    {/* 메인 컨테이너 - 모바일 폭으로 제한 */}
+    <div className="max-w-lg mx-auto bg-white min-h-screen overflow-visible">
+      <div className={`${MODERN.base} overflow-visible`}>
+        {/* Hero - 메인 웨딩 사진 */}
+        <section ref={sections.hero} className="overflow-visible mb-16 sm:mb-20">
+          <figure className="h-screen relative overflow-visible">
+            {/* 메인 이미지 */}
+            <SmartImage
+              src="/main.jpg"
+              alt="Wedding Photo"
+              className="w-full h-full object-cover"
+              aspect=""
+            />
 
-          {/* Hero - 메인 웨딩 사진 */}
-          <section ref={sections.hero} className="pt-4 sm:pt-8 pb-8 sm:pb-12">
-            <figure className="relative shadow-xl">
-              {/* 메인 이미지 */}
-              <SmartImage
-                src="/main.jpg"
-                alt="Wedding Photo"
-                className="w-full h-auto object-cover"
-                aspect="3/4"
+            {/* 상단 텍스트 오버레이 */}
+            <div className="absolute top-0 left-0 right-0 pt-6 sm:pt-8 text-center z-10">
+              <p className="text-lg sm:text-3xl font-medium drop-shadow-lg">
+                {year}.{String(month + 1).padStart(2, '0')}.{String(date).padStart(2, '0')} 토요일 오후 2시
+              </p>
+              <p className="text-3xl sm:text-5xl font-medium drop-shadow-lg mt-2">
+                김{GROOM.name}♥김{BRIDE.name}
+              </p>
+            </div>
+
+            {/* 하단 필기체 텍스트 - 써지는 효과 */}
+            <div className="absolute -bottom-8 sm:-bottom-12 left-0 right-0 flex justify-center z-10">
+              <img
+                src="/we-getting-married.png"
+                alt="We getting married"
+                className="w-4/5 sm:w-3/4 animate-write"
               />
+            </div>
+          </figure>
+        </section>
 
-              {/* 상단 텍스트 오버레이 */}
-              <div className="absolute top-0 left-0 right-0 pt-6 sm:pt-8 text-center">
-                <p className="text-black text-base sm:text-sm font-medium drop-shadow-lg">
-                  {year}.{String(month + 1).padStart(2, '0')}.{String(date).padStart(2, '0')} 토요일 오후 2시
-                </p>
-                <p className="text-black text-2xl sm:text-2xl font-bold drop-shadow-lg">
-                  김{GROOM.name}♥김{BRIDE.name}
-                </p>
-              </div>
-
-              {/* 하단 필기체 텍스트 - 강하게 기울임 */}
-              <div className="absolute -bottom-4 sm:-bottom-8 left-0 right-0 flex justify-center">
-                <img
-                  src="/we-getting-married.png"
-                  alt="We getting married"
-                  className="w-2/3 sm:w-1/2 drop-shadow-2xl"
-                />
-              </div>
-            </figure>
-          </section>
-
-          {/* 초대 메시지 (Text - 결혼안내) */}
-          <section ref={sections.greeting} className="max-w-2xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+        {/* 초대 메시지 - 추가 패딩 */}
+        <section ref={sections.greeting} className="max-w-2xl mx-auto px-3 sm:px-4 pt-8 pb-8 sm:pb-12">
             <Card className="p-6 sm:p-8 text-center">
               <EllipseBadge text="INVITATION" />
               <br />
@@ -193,8 +154,8 @@ export default function ModernWeddingInvite() {
             </div>
 
             {/* 중앙 하트 */}
-            <div className="absolute top-6 sm:top-16 left-1/2 transform -translate-x-1/2 z-10">
-              <div className="p-16 sm:p-16">
+            <div className="absolute top-6 sm:top-3 left-1/2 transform -translate-x-1/2 z-10">
+              <div className="p-16 sm:p-19">
                 <img
                   src="/heart.svg"
                   alt="heart"
@@ -206,10 +167,10 @@ export default function ModernWeddingInvite() {
 
           <EllipseBadge text="OUR TIME" />
           <div className="text-center py-8">
-            <p className="text-xs text-gray-600 mb-2">{GROOM.name}과 {BRIDE.name}이 함께한지</p>
+            <p className="text-xs text-black-600 mb-2">{GROOM.name}과 {BRIDE.name}이 함께한지</p>
             <TimeSince
               startDate="2020-03-21T00:00:00+09:00"
-              className="font-bold text-lg text-gray-800"
+              className="font-hamchorong font-bold text-lg text-gray-800"
             />
           </div>
 
@@ -238,11 +199,11 @@ export default function ModernWeddingInvite() {
           <EllipseBadge text="GALLERY" />
           <br />
           <section ref={sections.gallery} className="max-w-6xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-1.5 sm:gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 sm:gap-2">
               {galleryImages.map((image, index) => (
                 <figure
                   key={index}
-                  className="aspect-square overflow-hidden rounded-md sm:rounded-lg hover:opacity-80 transition cursor-pointer"
+                  className="aspect-square overflow-hidden hover:opacity-80 transition cursor-pointer"
                 >
                   <SmartImage
                     src={image}
@@ -263,9 +224,7 @@ export default function ModernWeddingInvite() {
                 <br />
                 <p className="text-sm sm:text-base text-gray-900 font-bold">
                   {year}년 {month + 1}월 {date}일 토요일 오후 2시<br />
-                  {VENUE_NAME}<br /><br />
-                  {ADDRESS}<br />
-                  {FLOOR}
+                  {VENUE_NAME}
                 </p>
               </div>
               {/* 캘린더 */}
@@ -287,10 +246,10 @@ export default function ModernWeddingInvite() {
                         <div key={i} className="aspect-square flex items-center justify-center">
                           {cell.d && (
                             <span className={`
-                          inline-flex h-10 w-10 items-center justify-center rounded-full
-                          ${isWeddingDay ? "bg-rose-500 text-white font-bold" :
-                                isSunday ? "text-red-500 font-bold" : "text-gray-700"}
-                        `}>
+                                              inline-flex h-10 w-10 items-center justify-center rounded-full
+                                              ${isWeddingDay ? "bg-rose-500 text-white font-bold" :
+                                                    isSunday ? "text-red-500 font-bold" : "text-gray-700"}
+                                            `}>
                               {cell.d}
                             </span>
                           )}
@@ -331,7 +290,7 @@ export default function ModernWeddingInvite() {
             </div>
             <Card className="p-4 sm:p-6">
               {/* 교통 정보 */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:gap-4 text-sm">
                 <InfoBox icon="🚗" title="자가용 & 주차" info="구로공구상가 주차장 검색
 최대5시간 무료 주차" />
                 <InfoBox icon="🚇" title="지하철" info="1호선 구로역 1번 출구 하차
@@ -366,7 +325,7 @@ export default function ModernWeddingInvite() {
               </div>
             </Card>
 
-            <div className="grid md:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid sm:grid-cols-2 gap-2">
               <AccountBoxSelect accounts={ACCOUNTS_GROOM} role="신랑측 계좌" />
               <AccountBoxSelect accounts={ACCOUNTS_BRIDE} role="신부측 계좌" />
             </div>
@@ -404,13 +363,13 @@ export default function ModernWeddingInvite() {
           </section>
 
           {/* Footer */}
-          <footer className="py-8 sm:py-12 text-center text-gray-500 text-xs sm:text-sm mb-20">
+          {/* <footer className="py-8 sm:py-12 text-center text-gray-500 text-xs sm:text-sm mb-20">
             <p>© 2026 Wedding Invitation</p>
             <p className="mt-2">감사합니다 💝</p>
-          </footer>
+          </footer> */}
 
           {/* 하단 액션바 */}
-          <div className="fixed inset-x-0 bottom-0 z-40 bg-white backdrop-blur-md shadow-xl border-t border-gray-200">
+          {/* <div className="fixed inset-x-0 bottom-0 z-40 bg-white backdrop-blur-md shadow-xl border-t border-gray-200">
             <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex justify-center gap-2 sm:gap-3">
               <ActionButton
                 href={`tel:${TEL_GROOM}`}
@@ -428,7 +387,7 @@ export default function ModernWeddingInvite() {
                 label="길찾기"
               />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
@@ -436,16 +395,16 @@ export default function ModernWeddingInvite() {
 }
 
 /** ===== UI 컴포넌트들 ===== */
-function Pill({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`${MODERN.pill} hover:bg-rose-50 transition`}
-    >
-      {children}
-    </button>
-  );
-}
+// function Pill({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
+//   return (
+//     <button
+//       onClick={onClick}
+//       className={`${MODERN.pill} hover:bg-rose-50 transition`}
+//     >
+//       {children}
+//     </button>
+//   );
+// }
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return <div className={`${MODERN.card} rounded-2xl ${className}`}>{children}</div>;
@@ -495,17 +454,17 @@ interface BadgeProps {
 const EllipseBadge: React.FC<BadgeProps> = ({ text }) => {
   return (
     <div className="flex justify-center">
-      <svg width="240" height="60" viewBox="0 0 240 60">
-        <ellipse cx="120" cy="30" rx="90" ry="20" fill="black" />
+      <svg width="180" height="50" viewBox="0 0 180 50">
+        <ellipse cx="90" cy="25" rx="70" ry="16" fill="black" />
         <text
           x="50%"
           y="52%"
           dominantBaseline="middle"
           textAnchor="middle"
           fill="white"
-          fontSize="16"
-          fontWeight="500"
-          letterSpacing="3"
+          fontSize="13"
+          fontWeight="520"
+          letterSpacing="2"
         >
           {text}
         </text>
@@ -514,38 +473,38 @@ const EllipseBadge: React.FC<BadgeProps> = ({ text }) => {
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function InfoBox({ icon, title, info }: { icon: string; title: string; info: string }) {
   return (
-    <div className="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 text-center">
-      <div className="text-xl sm:text-2xl mb-1.5 sm:mb-2">{icon}</div>
+    <div className="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl text-left">
+      {/* <div className="text-xl sm:text-2xl mb-1.5 sm:mb-2">{icon}</div> */}
       <p className="text-sm sm:text-base font-bold text-gray-900 mb-1">{title}</p>
       <p className="text-xs sm:text-sm text-gray-600 whitespace-pre-line">{info}</p>
     </div>
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function AccountBoxSelect({ accounts, role }: { accounts: Array<{ bank: string; num: string; name: string }>; role: string }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const selected = accounts[selectedIndex];
+  // const selected = accounts[selectedIndex];
 
-  async function copyText() {
-    try {
-      await navigator.clipboard.writeText(`${selected.bank} ${selected.num} ${selected.name}`);
-      alert("계좌번호가 복사되었습니다");
-    } catch {
-      prompt("계좌번호를 복사하세요", `${selected.bank} ${selected.num} ${selected.name}`);
-    }
-  }
+  // async function copyText() {
+  //   try {
+  //     await navigator.clipboard.writeText(`${selected.bank} ${selected.num} ${selected.name}`);
+  //     alert("계좌번호가 복사되었습니다");
+  //   } catch {
+  //     prompt("계좌번호를 복사하세요", `${selected.bank} ${selected.num} ${selected.name}`);
+  //   }
+  // }
 
   return (
-    <Card className="p-4 sm:p-5">
-      <p className="text-xs sm:text-sm text-gray-500 mb-3">{role}</p>
-
+    <Card className="">
       {/* 드롭다운 */}
       <select
         value={selectedIndex}
         onChange={(e) => setSelectedIndex(Number(e.target.value))}
-        className="w-full mb-3 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
+        className="w-full mb-3 px-3 py-3 text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
       >
         {accounts.map((account, index) => (
           <option key={index} value={index}>
@@ -553,53 +512,39 @@ function AccountBoxSelect({ accounts, role }: { accounts: Array<{ bank: string; 
           </option>
         ))}
       </select>
-
-      {/* 선택된 계좌 정보 */}
-      <div className="bg-gray-50 backdrop-blur-sm rounded-lg p-3 mb-3 border border-gray-200">
-        <p className="text-sm sm:text-base font-medium text-gray-900">{selected.bank}</p>
-        <p className="text-sm sm:text-base text-gray-700 mt-1 font-mono">{selected.num}</p>
-        <p className="text-xs sm:text-sm text-gray-600 mt-1">예금주: {selected.name}</p>
-      </div>
-
-      <button
-        onClick={copyText}
-        className={`${MODERN.btn} ${MODERN.soft} w-full text-xs sm:text-sm`}
-      >
-        계좌번호 복사
-      </button>
     </Card>
   );
 }
 
-function ActionButton({
-  href,
-  onClick,
-  icon,
-  label
-}: {
-  href?: string;
-  onClick?: () => void;
-  icon: React.ReactNode;
-  label: string;
-}) {
-  const className = `${MODERN.btn} ${MODERN.soft} inline-flex items-center justify-center gap-1.5 sm:gap-2 min-w-[90px] sm:min-w-[100px] text-xs sm:text-sm py-2.5 sm:py-2`;
+// function ActionButton({
+//   href,
+//   onClick,
+//   icon,
+//   label
+// }: {
+//   href?: string;
+//   onClick?: () => void;
+//   icon: React.ReactNode;
+//   label: string;
+// }) {
+//   const className = `${MODERN.btn} ${MODERN.soft} inline-flex items-center justify-center gap-1.5 sm:gap-2 min-w-[90px] sm:min-w-[100px] text-xs sm:text-sm py-2.5 sm:py-2`;
 
-  if (href) {
-    return (
-      <a href={href} className={className} target="_blank" rel="noopener noreferrer">
-        <span className="hidden sm:inline">{icon}</span>
-        <span>{label}</span>
-      </a>
-    );
-  }
+//   if (href) {
+//     return (
+//       <a href={href} className={className} target="_blank" rel="noopener noreferrer">
+//         <span className="hidden sm:inline">{icon}</span>
+//         <span>{label}</span>
+//       </a>
+//     );
+//   }
 
-  return (
-    <button onClick={onClick} className={className}>
-      <span className="hidden sm:inline">{icon}</span>
-      <span>{label}</span>
-    </button>
-  );
-}
+//   return (
+//     <button onClick={onClick} className={className}>
+//       <span className="hidden sm:inline">{icon}</span>
+//       <span>{label}</span>
+//     </button>
+//   );
+// }
 
 function SmartImage({
   src,
