@@ -1,8 +1,8 @@
 import React, { useMemo, useRef, useState } from "react";
 import { Calendar as MapPin, Phone, User } from "lucide-react";
 import { TimeSince } from "./components/TimeSince";
-// import { Guestbook } from "./components/Guestbook";
-// import { GuestGallery } from "./components/GuestGallery";
+import { Guestbook } from "./components/Guestbook";
+import { GuestGallery } from "./components/GuestGallery";
 
 /** ===== 디자인 토큰 ===== */
 const MODERN = {
@@ -333,14 +333,14 @@ export default function ModernWeddingInvite() {
           </section>
 
           {/* 방명록 섹션 */}
-          {/* <section ref={sections.guestbook} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+          <section ref={sections.guestbook} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
             <Guestbook />
-          </section> */}
+          </section>
 
           {/* 하객 갤러리 섹션 */}
-          {/* <section ref={sections.guestGallery} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+          <section ref={sections.guestGallery} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
             <GuestGallery />
-          </section> */}
+          </section>
 
           {/* 감사 메시지 섹션 */}
           <section className="pb-8 sm:pb-12">
