@@ -184,7 +184,7 @@ export function GuestGallery() {
       setUploadProgress(30);
 
       // 2️⃣ R2에 직접 업로드
-      const uploadResponse = await fetch(uploadUrl, {
+      const uploadResponse = await fetch(`${uploadUrl}?key=${encodeURIComponent(key)}`, {
         method: 'PUT',
         headers: {
           'Content-Type': selectedFile.type,
