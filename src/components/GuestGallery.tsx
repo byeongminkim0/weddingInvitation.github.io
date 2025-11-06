@@ -1,0 +1,586 @@
+import { useState, useEffect } from 'react';
+import { collection, addDoc, getDocs, deleteDoc, doc, orderBy, query, limit, startAfter, Timestamp, QueryDocumentSnapshot, type DocumentData } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { Upload, X, Loader2, Trash2, Camera, Image as ImageIcon } from 'lucide-react';
+
+const MODERN = {
+  card: "bg-white backdrop-blur-sm",
+};
+
+const PHOTOS_PER_PAGE = 12;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+// Cloudflare R2 Worker API URL
+const R2_API_URL = import.meta.env.VITE_R2_API_URL || 'https://wedding-r2-api.byeongmin564.workers.dev';
+
+interface GuestPhoto {
+  id: string;
+  imageUrl: string;
+  uploaderName: string;
+  createdAt: Date;
+  r2Key: string; // R2 오브젝트 키
+}
+
+export function GuestGallery() {
+  const [photos, setPhotos] = useState<GuestPhoto[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  
+  // 업로드 폼
+  const [uploaderName, setUploaderName] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  
+  // 라이트박스 (사진 크게 보기)
+  const [lightboxPhoto, setLightboxPhoto] = useState<GuestPhoto | null>(null);
+  
+  // 삭제 모달
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [photoToDelete, setPhotoToDelete] = useState<GuestPhoto | null>(null);
+
+  useEffect(() => {
+    loadPhotos();
+  }, []);
+
+  // 사진 로드
+  async function loadPhotos() {
+    try {
+      setLoading(true);
+      const q = query(
+        collection(db, 'guestGallery'),
+        orderBy('createdAt', 'desc'),
+        limit(PHOTOS_PER_PAGE)
+      );
+      
+      const snapshot = await getDocs(q);
+      
+      const loadedPhotos = snapshot.docs.map(doc => ({
+        id: doc.id,
+        imageUrl: doc.data().imageUrl,
+        uploaderName: doc.data().uploaderName,
+        r2Key: doc.data().r2Key || doc.data().storagePath, // 하위 호환성
+        createdAt: doc.data().createdAt?.toDate() || new Date()
+      }));
+      
+      setPhotos(loadedPhotos);
+      
+      if (snapshot.docs.length > 0) {
+        setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+      }
+      
+      setHasMore(snapshot.docs.length === PHOTOS_PER_PAGE);
+    } catch (error) {
+      console.error('사진 로드 실패:', error);
+      alert('사진을 불러오는데 실패했습니다');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // 더 많은 사진 로드
+  async function loadMorePhotos() {
+    if (!lastDoc || !hasMore || loadingMore) return;
+
+    try {
+      setLoadingMore(true);
+      const q = query(
+        collection(db, 'guestGallery'),
+        orderBy('createdAt', 'desc'),
+        startAfter(lastDoc),
+        limit(PHOTOS_PER_PAGE)
+      );
+      
+      const snapshot = await getDocs(q);
+      
+      const newPhotos = snapshot.docs.map(doc => ({
+        id: doc.id,
+        imageUrl: doc.data().imageUrl,
+        uploaderName: doc.data().uploaderName,
+        r2Key: doc.data().r2Key || doc.data().storagePath,
+        createdAt: doc.data().createdAt?.toDate() || new Date()
+      }));
+      
+      setPhotos(prev => [...prev, ...newPhotos]);
+      
+      if (snapshot.docs.length > 0) {
+        setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+      }
+      
+      setHasMore(snapshot.docs.length === PHOTOS_PER_PAGE);
+    } catch (error) {
+      console.error('추가 사진 로드 실패:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  // 파일 선택
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 파일 크기 체크
+    if (file.size > MAX_FILE_SIZE) {
+      alert('파일 크기는 5MB 이하여야 합니다');
+      return;
+    }
+
+    // 이미지 파일만 허용
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다');
+      return;
+    }
+
+    setSelectedFile(file);
+    
+    // 미리보기 생성
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // 사진 업로드 (Cloudflare R2 사용)
+  async function handleUpload(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!uploaderName.trim()) {
+      alert('이름을 입력해주세요');
+      return;
+    }
+
+    if (!selectedFile) {
+      alert('사진을 선택해주세요');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setUploadProgress(0);
+
+      // 1️⃣ Presigned URL 요청
+      const urlResponse = await fetch(`${R2_API_URL}/api/upload-url`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filename: selectedFile.name,
+          contentType: selectedFile.type,
+        }),
+      });
+
+      if (!urlResponse.ok) {
+        const error = await urlResponse.json();
+        throw new Error(error.error || '업로드 URL 생성 실패');
+      }
+
+      const { uploadUrl, publicUrl, key } = await urlResponse.json();
+      setUploadProgress(30);
+
+      // 2️⃣ R2에 직접 업로드
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': selectedFile.type,
+        },
+        body: selectedFile,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('R2 업로드 실패');
+      }
+
+      setUploadProgress(70);
+
+      // 3️⃣ Firestore에 메타데이터 저장
+      await addDoc(collection(db, 'guestGallery'), {
+        imageUrl: publicUrl,
+        uploaderName: uploaderName.trim(),
+        r2Key: key,
+        createdAt: Timestamp.now()
+      });
+
+      setUploadProgress(100);
+
+      // 폼 초기화
+      setUploaderName('');
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setUploadProgress(0);
+      
+      // 목록 새로고침
+      await loadPhotos();
+      
+      alert('사진이 업로드되었습니다! 📸');
+    } catch (error) {
+      console.error('업로드 실패:', error);
+      alert(`업로드에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+      setUploadProgress(0);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  // 사진 삭제 (R2 + Firestore)
+  async function handleDelete() {
+    if (!photoToDelete) return;
+
+    try {
+      // 1️⃣ Firestore에서 삭제
+      await deleteDoc(doc(db, 'guestGallery', photoToDelete.id));
+      
+      // 2️⃣ R2에서 삭제
+      try {
+        await fetch(`${R2_API_URL}/api/delete`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            key: photoToDelete.r2Key,
+          }),
+        });
+      } catch (error) {
+        console.error('R2 삭제 실패:', error);
+        // R2 삭제 실패해도 계속 진행
+      }
+
+      // 3️⃣ 로컬 상태 업데이트
+      setPhotos(prev => prev.filter(p => p.id !== photoToDelete.id));
+      
+      setShowDeleteModal(false);
+      setPhotoToDelete(null);
+      alert('사진이 삭제되었습니다');
+    } catch (error) {
+      console.error('삭제 실패:', error);
+      alert('삭제에 실패했습니다');
+    }
+  }
+
+  function formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}.${month}.${day} ${hours}:${minutes}`;
+  }
+
+  return (
+    <>
+      {/* 타이틀 */}
+      <div className="text-center mb-6 sm:mb-8">
+        <EllipseBadge text="GUEST GALLERY" />
+        <br />
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
+          하객 갤러리
+        </h2>
+        <p className="text-sm text-gray-600">
+          결혼식의 소중한 순간을 함께 나눠주세요
+        </p>
+      </div>
+
+      {/* 업로드 폼 */}
+      <Card className="p-5 sm:p-6 mb-6 sm:mb-8">
+        <form onSubmit={handleUpload} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              이름
+            </label>
+            <input
+              type="text"
+              placeholder="홍길동"
+              value={uploaderName}
+              onChange={(e) => setUploaderName(e.target.value)}
+              maxLength={20}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-sm sm:text-base"
+              disabled={uploading}
+            />
+          </div>
+
+          {/* 파일 선택 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              사진 선택 <span className="text-xs text-gray-500">(최대 5MB)</span>
+            </label>
+            
+            {previewUrl ? (
+              <div className="relative">
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="w-full h-48 sm:h-64 object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setPreviewUrl(null);
+                  }}
+                  className="absolute top-2 right-2 p-2 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70 transition"
+                  disabled={uploading}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full h-48 sm:h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Camera className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mb-3" />
+                  <p className="mb-2 text-sm text-gray-600">
+                    <span className="font-semibold">클릭하여 사진 선택</span>
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    JPG, PNG, GIF, WEBP (최대 5MB)
+                  </p>
+                </div>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  disabled={uploading}
+                />
+              </label>
+            )}
+          </div>
+
+          {/* 업로드 진행률 */}
+          {uploading && uploadProgress > 0 && (
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-black h-2.5 rounded-full transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={uploading || !selectedFile}
+            className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base flex items-center justify-center gap-2"
+          >
+            {uploading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                업로드 중... {uploadProgress}%
+              </>
+            ) : (
+              <>
+                <Upload className="w-4 h-4" />
+                사진 올리기
+              </>
+            )}
+          </button>
+        </form>
+      </Card>
+
+      {/* 사진 그리드 */}
+      {loading ? (
+        <div className="text-center py-12 text-gray-500">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p className="text-sm sm:text-base">사진을 불러오는 중...</p>
+        </div>
+      ) : photos.length === 0 ? (
+        <Card className="p-8 sm:p-12 text-center">
+          <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600 text-sm sm:text-base">
+            첫 번째 사진을 올려주세요!
+          </p>
+        </Card>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
+            {photos.map((photo) => (
+              <div
+                key={photo.id}
+                className="relative aspect-square group cursor-pointer overflow-hidden rounded-lg shadow hover:shadow-lg transition"
+                onClick={() => setLightboxPhoto(photo)}
+              >
+                <img
+                  src={photo.imageUrl}
+                  alt={`${photo.uploaderName}님의 사진`}
+                  className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                  loading="lazy"
+                />
+                
+                {/* 오버레이 */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
+                  <p className="text-white text-sm font-semibold mb-1">
+                    {photo.uploaderName}
+                  </p>
+                  <p className="text-white text-xs">
+                    {formatDate(photo.createdAt)}
+                  </p>
+                </div>
+
+                {/* 삭제 버튼 */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPhotoToDelete(photo);
+                    setShowDeleteModal(true);
+                  }}
+                  className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-red-600"
+                  title="삭제"
+                >
+                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* 더보기 버튼 */}
+          {hasMore && (
+            <div className="text-center mt-6">
+              <button
+                onClick={loadMorePhotos}
+                disabled={loadingMore}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base font-medium shadow-sm"
+              >
+                {loadingMore ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    불러오는 중...
+                  </>
+                ) : (
+                  <>더보기 ({PHOTOS_PER_PAGE}개씩)</>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* 사진 개수 */}
+          <div className="text-center mt-6 text-sm text-gray-500">
+            {hasMore ? (
+              <>현재 {photos.length}개의 사진 (더보기로 추가 확인 가능)</>
+            ) : (
+              <>총 {photos.length}개의 사진</>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* 라이트박스 (사진 크게 보기) */}
+      {lightboxPhoto && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+          onClick={() => setLightboxPhoto(null)}
+        >
+          <button
+            onClick={() => setLightboxPhoto(null)}
+            className="absolute top-4 right-4 text-white hover:text-gray-300 transition"
+          >
+            <X className="w-8 h-8" />
+          </button>
+
+          <div className="max-w-4xl max-h-[90vh] flex flex-col items-center">
+            <img
+              src={lightboxPhoto.imageUrl}
+              alt={`${lightboxPhoto.uploaderName}님의 사진`}
+              className="max-w-full max-h-[80vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="mt-4 text-center">
+              <p className="text-white font-semibold text-lg">
+                {lightboxPhoto.uploaderName}
+              </p>
+              <p className="text-gray-300 text-sm">
+                {formatDate(lightboxPhoto.createdAt)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 삭제 확인 모달 */}
+      {showDeleteModal && photoToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                사진 삭제
+              </h3>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setPhotoToDelete(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <img
+                src={photoToDelete.imageUrl}
+                alt="삭제할 사진"
+                className="w-full h-48 object-cover rounded-lg"
+              />
+              <p className="mt-2 text-sm text-gray-600">
+                업로더: {photoToDelete.uploaderName}
+              </p>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">
+              정말 이 사진을 삭제하시겠습니까?
+            </p>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setPhotoToDelete(null);
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm font-medium"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm font-medium"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// Card 컴포넌트
+function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`${MODERN.card} rounded-2xl shadow ${className}`}>{children}</div>;
+}
+
+// EllipseBadge 컴포넌트
+function EllipseBadge({ text }: { text: string }) {
+  return (
+    <div className="flex justify-center">
+      <svg width="180" height="50" viewBox="0 0 180 50">
+        <ellipse cx="90" cy="25" rx="70" ry="16" fill="black" />
+        <text
+          x="50%"
+          y="52%"
+          dominantBaseline="middle"
+          textAnchor="middle"
+          fill="white"
+          fontSize="13"
+          fontWeight="520"
+          letterSpacing="2"
+        >
+          {text}
+        </text>
+      </svg>
+    </div>
+  );
+}

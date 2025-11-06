@@ -1,6 +1,8 @@
 import React, { useMemo, useRef, useState } from "react";
 import { Calendar as MapPin, Phone, User } from "lucide-react";
 import { TimeSince } from "./components/TimeSince";
+import { Guestbook } from "./components/Guestbook";
+import { GuestGallery } from "./components/GuestGallery";
 
 /** ===== 디자인 토큰 ===== */
 const MODERN = {
@@ -14,7 +16,6 @@ const MODERN = {
 
 /** ===== 웨딩 정보 ===== */
 const WEDDING_DATE = "2026-06-13T14:00:00+09:00"; // 2026년 6월 13일 오후 2시
-// const OUR_DATE = "2020-03-21T00:00:00+09:00";
 const VENUE_NAME = "제이오스티엘";
 const TEL_GROOM = "010-1234-5678";
 const TEL_BRIDE = "010-9876-5432";
@@ -65,9 +66,9 @@ export default function ModernWeddingInvite() {
     dday: useRef<HTMLDivElement>(null),
     directions: useRef<HTMLDivElement>(null),
     account: useRef<HTMLDivElement>(null),
+    guestbook: useRef<HTMLDivElement>(null),
+    guestGallery: useRef<HTMLDivElement>(null),
   } as const;
-
-  // const scrollTo = (el?: HTMLElement | null) => el?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   /** 카운트다운 */
   const weddingDate = useMemo(() => new Date(WEDDING_DATE), []);
@@ -232,7 +233,7 @@ export default function ModernWeddingInvite() {
                 <div className="bg-white backdrop-blur-sm rounded-b-2xl overflow-hidden">
                   <div className="grid grid-cols-7 text-center py-2">
                     {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
-                      <div key={day} className={`font-bold ${index === 0 ? "text-red-500" : "text-gray-600"}`}>
+                      <div key={index} className={`font-bold ${index === 0 ? "text-red-500" : "text-gray-600"}`}>
                         {day}
                       </div>
                     ))}
@@ -331,6 +332,16 @@ export default function ModernWeddingInvite() {
             </div>
           </section>
 
+          {/* 방명록 섹션 */}
+          <section ref={sections.guestbook} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+            <Guestbook />
+          </section>
+
+          {/* 하객 갤러리 섹션 */}
+          <section ref={sections.guestGallery} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+            <GuestGallery />
+          </section>
+
           {/* 감사 메시지 섹션 */}
           <section className="pb-8 sm:pb-12">
             {/* 이미지 */}
@@ -361,50 +372,11 @@ export default function ModernWeddingInvite() {
               </p>
             </Card>
           </section>
-
-          {/* Footer */}
-          {/* <footer className="py-8 sm:py-12 text-center text-gray-500 text-xs sm:text-sm mb-20">
-            <p>© 2026 Wedding Invitation</p>
-            <p className="mt-2">감사합니다 💝</p>
-          </footer> */}
-
-          {/* 하단 액션바 */}
-          {/* <div className="fixed inset-x-0 bottom-0 z-40 bg-white backdrop-blur-md shadow-xl border-t border-gray-200">
-            <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex justify-center gap-2 sm:gap-3">
-              <ActionButton
-                href={`tel:${TEL_GROOM}`}
-                icon={<Phone className="h-5 w-5" />}
-                label="전화하기"
-              />
-              <ActionButton
-                onClick={share}
-                icon={<Share2 className="h-5 w-5" />}
-                label="공유하기"
-              />
-              <ActionButton
-                href={MAP_LINK_KAKAO}
-                icon={<MapPin className="h-5 w-5" />}
-                label="길찾기"
-              />
-            </div>
-          </div> */}
         </div>
       </div>
     </div>
   );
 }
-
-/** ===== UI 컴포넌트들 ===== */
-// function Pill({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
-//   return (
-//     <button
-//       onClick={onClick}
-//       className={`${MODERN.pill} hover:bg-rose-50 transition`}
-//     >
-//       {children}
-//     </button>
-//   );
-// }
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return <div className={`${MODERN.card} rounded-2xl ${className}`}>{children}</div>;
@@ -476,7 +448,6 @@ const EllipseBadge: React.FC<BadgeProps> = ({ text }) => {
 function InfoBox({ title, info }: { icon: string; title: string; info: string }) {
   return (
     <div className="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl text-left">
-      {/* <div className="text-xl sm:text-2xl mb-1.5 sm:mb-2">{icon}</div> */}
       <p className="text-sm sm:text-base font-bold text-gray-900 mb-1">{title}</p>
       <p className="text-xs sm:text-sm text-gray-600 whitespace-pre-line">{info}</p>
     </div>
@@ -485,16 +456,6 @@ function InfoBox({ title, info }: { icon: string; title: string; info: string })
 
 function AccountBoxSelect({ accounts }: { accounts: Array<{ bank: string; num: string; name: string }>; role: string }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  // const selected = accounts[selectedIndex];
-
-  // async function copyText() {
-  //   try {
-  //     await navigator.clipboard.writeText(`${selected.bank} ${selected.num} ${selected.name}`);
-  //     alert("계좌번호가 복사되었습니다");
-  //   } catch {
-  //     prompt("계좌번호를 복사하세요", `${selected.bank} ${selected.num} ${selected.name}`);
-  //   }
-  // }
 
   return (
     <Card className="">
@@ -513,36 +474,6 @@ function AccountBoxSelect({ accounts }: { accounts: Array<{ bank: string; num: s
     </Card>
   );
 }
-
-// function ActionButton({
-//   href,
-//   onClick,
-//   icon,
-//   label
-// }: {
-//   href?: string;
-//   onClick?: () => void;
-//   icon: React.ReactNode;
-//   label: string;
-// }) {
-//   const className = `${MODERN.btn} ${MODERN.soft} inline-flex items-center justify-center gap-1.5 sm:gap-2 min-w-[90px] sm:min-w-[100px] text-xs sm:text-sm py-2.5 sm:py-2`;
-
-//   if (href) {
-//     return (
-//       <a href={href} className={className} target="_blank" rel="noopener noreferrer">
-//         <span className="hidden sm:inline">{icon}</span>
-//         <span>{label}</span>
-//       </a>
-//     );
-//   }
-
-//   return (
-//     <button onClick={onClick} className={className}>
-//       <span className="hidden sm:inline">{icon}</span>
-//       <span>{label}</span>
-//     </button>
-//   );
-// }
 
 function SmartImage({
   src,
