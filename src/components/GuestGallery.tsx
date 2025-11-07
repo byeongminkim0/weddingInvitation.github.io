@@ -19,6 +19,7 @@ interface GuestPhoto {
   uploaderName: string;
   createdAt: Date;
   r2Key: string; // R2 오브젝트 키
+  passwordHash: string; // 비밀번호 해시
 }
 
 export function GuestGallery() {
@@ -31,6 +32,7 @@ export function GuestGallery() {
   
   // 업로드 폼
   const [uploaderName, setUploaderName] = useState('');
+  const [uploadPassword, setUploadPassword] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -54,10 +56,20 @@ export function GuestGallery() {
   // 삭제 모달
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [photoToDelete, setPhotoToDelete] = useState<GuestPhoto | null>(null);
+  const [deletePassword, setDeletePassword] = useState('');
 
   useEffect(() => {
     loadPhotos();
   }, []);
+
+  // 비밀번호 해시 함수
+  async function hashPassword(password: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
 
   // 사진 로드
   async function loadPhotos() {
@@ -76,6 +88,7 @@ export function GuestGallery() {
         imageUrl: doc.data().imageUrl,
         uploaderName: doc.data().uploaderName,
         r2Key: doc.data().r2Key || doc.data().storagePath, // 하위 호환성
+        passwordHash: doc.data().passwordHash || '', // 하위 호환성
         createdAt: doc.data().createdAt?.toDate() || new Date()
       }));
       
@@ -114,6 +127,7 @@ export function GuestGallery() {
         imageUrl: doc.data().imageUrl,
         uploaderName: doc.data().uploaderName,
         r2Key: doc.data().r2Key || doc.data().storagePath,
+        passwordHash: doc.data().passwordHash || '', // 하위 호환성
         createdAt: doc.data().createdAt?.toDate() || new Date()
       }));
       
@@ -167,6 +181,16 @@ export function GuestGallery() {
       return;
     }
 
+    if (!uploadPassword.trim()) {
+      alert('비밀번호를 입력해주세요 (삭제 시 필요)');
+      return;
+    }
+
+    if (uploadPassword.length < 4) {
+      alert('비밀번호는 4자 이상 입력해주세요');
+      return;
+    }
+
     if (!selectedFile) {
       alert('사진을 선택해주세요');
       return;
@@ -176,7 +200,10 @@ export function GuestGallery() {
       setUploading(true);
       setUploadProgress(0);
 
-      // 1️⃣ Presigned URL 요청
+      // 1️⃣ 비밀번호 해시화
+      const passwordHash = await hashPassword(uploadPassword);
+
+      // 2️⃣ Presigned URL 요청
       const urlResponse = await fetch(`${R2_API_URL}/api/upload-url`, {
         method: 'POST',
         headers: {
@@ -216,6 +243,7 @@ export function GuestGallery() {
         imageUrl: publicUrl,
         uploaderName: uploaderName.trim(),
         r2Key: key,
+        passwordHash: passwordHash,
         createdAt: Timestamp.now()
       });
 
@@ -223,6 +251,7 @@ export function GuestGallery() {
 
       // 폼 초기화
       setUploaderName('');
+      setUploadPassword('');
       setSelectedFile(null);
       setPreviewUrl(null);
       setUploadProgress(0);
@@ -244,11 +273,24 @@ export function GuestGallery() {
   async function handleDelete() {
     if (!photoToDelete) return;
 
+    if (!deletePassword.trim()) {
+      alert('비밀번호를 입력해주세요');
+      return;
+    }
+
     try {
-      // 1️⃣ Firestore에서 삭제
+      // 1️⃣ 비밀번호 확인
+      const inputHash = await hashPassword(deletePassword);
+      
+      if (inputHash !== photoToDelete.passwordHash) {
+        alert('비밀번호가 일치하지 않습니다');
+        return;
+      }
+
+      // 2️⃣ Firestore에서 삭제
       await deleteDoc(doc(db, 'guestGallery', photoToDelete.id));
       
-      // 2️⃣ R2에서 삭제
+      // 3️⃣ R2에서 삭제
       try {
         await fetch(`${R2_API_URL}/api/delete`, {
           method: 'POST',
@@ -264,11 +306,12 @@ export function GuestGallery() {
         // R2 삭제 실패해도 계속 진행
       }
 
-      // 3️⃣ 로컬 상태 업데이트
+      // 4️⃣ 로컬 상태 업데이트
       setPhotos(prev => prev.filter(p => p.id !== photoToDelete.id));
       
       setShowDeleteModal(false);
       setPhotoToDelete(null);
+      setDeletePassword('');
       alert('사진이 삭제되었습니다');
     } catch (error) {
       console.error('삭제 실패:', error);
@@ -311,6 +354,22 @@ export function GuestGallery() {
               placeholder="홍길동"
               value={uploaderName}
               onChange={(e) => setUploaderName(e.target.value)}
+              maxLength={20}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-sm sm:text-base"
+              disabled={uploading}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              비밀번호 <span className="text-xs text-gray-500">(4자 이상, 삭제 시 필요)</span>
+            </label>
+            <input
+              type="password"
+              placeholder="••••"
+              value={uploadPassword}
+              onChange={(e) => setUploadPassword(e.target.value)}
+              minLength={4}
               maxLength={20}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-sm sm:text-base"
               disabled={uploading}
@@ -539,7 +598,7 @@ export function GuestGallery() {
 
       {/* 삭제 확인 모달 */}
       {showDeleteModal && photoToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
@@ -549,6 +608,7 @@ export function GuestGallery() {
                 onClick={() => {
                   setShowDeleteModal(false);
                   setPhotoToDelete(null);
+                  setDeletePassword('');
                 }}
                 className="text-gray-400 hover:text-gray-600 transition"
               >
@@ -567,8 +627,22 @@ export function GuestGallery() {
               </p>
             </div>
 
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                비밀번호를 입력하세요
+              </label>
+              <input
+                type="password"
+                placeholder="••••"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+                autoFocus
+              />
+            </div>
+
             <p className="text-sm text-gray-600 mb-4">
-              정말 이 사진을 삭제하시겠습니까?
+              업로드 시 설정한 비밀번호를 입력하면 삭제됩니다.
             </p>
 
             <div className="flex gap-2">
@@ -576,6 +650,7 @@ export function GuestGallery() {
                 onClick={() => {
                   setShowDeleteModal(false);
                   setPhotoToDelete(null);
+                  setDeletePassword('');
                 }}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm font-medium"
               >

@@ -412,8 +412,7 @@ export default function ModernWeddingInvite() {
           </section>
 
           {/* 감사 메시지 섹션 */}
-          <section className="pb-8 sm:pb-12">
-            {/* 이미지 */}
+          {/* <section className="pb-8 sm:pb-12">
             <img
               src="/wide.png"
               alt="Thank you"
@@ -421,7 +420,6 @@ export default function ModernWeddingInvite() {
             />
             <Card className="p-6 sm:p-8 text-center">
               <br />
-              {/* 메시지 */}
               <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-black-700 leading-relaxed">
                 <p>
                   오랜 이어진 인사가 오늘 약속이 됩니다.<br />
@@ -429,18 +427,14 @@ export default function ModernWeddingInvite() {
                   그 마음 꼭 기억할게요.
                 </p>
               </div>
-
-              {/* 구분선 */}
               <div className="my-4 sm:my-6">
                 <div className="w-24 h-px bg-gray-800 mx-auto"></div>
               </div>
-
-              {/* 이름 */}
               <p className="text-base sm:text-lg font-medium text-gray-900">
                 {BRIDE.name}과 {GROOM.name}
               </p>
             </Card>
-          </section>
+          </section> */}
         </div>
       </div>
     </div>

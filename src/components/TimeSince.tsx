@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CountUp from './CountUp';
 
 interface TimeSinceProps {
   startDate: string; // "2020-03-21T00:00:00+09:00"
@@ -81,9 +82,34 @@ export const TimeSince: React.FC<TimeSinceProps> = ({ startDate, className = '' 
 
   return (
     <p className={className}>
-      <span style={{ color: '#ff0000' }}>{timeData.years}</span>년{' '}
-      <span style={{ color: '#ff0000' }}>{timeData.months}</span>개월{' '}
-      <span style={{ color: '#ff0000' }}>{timeData.days}</span>일{' '}
+      {/* <span style={{ color: '#ff0000' }}>{timeData.months}</span> */}
+      <CountUp
+        from={0}
+        to={timeData.years}
+        separator=","
+        direction="up"
+        duration={1}
+        className="count-up-text"
+      />
+      년{' '}
+      <CountUp
+        from={0}
+        to={timeData.months}
+        separator=","
+        direction="up"
+        duration={1}
+        className="count-up-text"
+      />
+      개월{' '}
+      <CountUp
+        from={0}
+        to={timeData.days}
+        separator=","
+        direction="up"
+        duration={1}
+        className="count-up-text"
+      />
+      일{' '}
       <span style={{ color: '#ff0000' }}>{timeData.hours}</span>시간{' '}
       <span style={{ color: '#ff0000' }}>{timeData.minutes}</span>분{' '}
       <span style={{ color: '#ff0000' }}>{timeData.seconds}</span>초
