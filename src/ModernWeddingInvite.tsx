@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Calendar as MapPin, Phone, User } from "lucide-react";
+import { Calendar as MapPin, Phone, User, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { TimeSince } from "./components/TimeSince";
 import { Guestbook } from "./components/Guestbook";
 import { GuestGallery } from "./components/GuestGallery";
@@ -81,6 +81,22 @@ export default function ModernWeddingInvite() {
 
   /** 갤러리 이미지 (24개) */
   const galleryImages = Array.from({ length: 24 }, (_, i) => `/gallery/gallery${i + 1}.jpg`);
+  
+  /** 갤러리 모달 상태 */
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  
+  const openModal = (index: number) => setSelectedImageIndex(index);
+  const closeModal = () => setSelectedImageIndex(null);
+  const goToPrevious = () => {
+    if (selectedImageIndex !== null) {
+      setSelectedImageIndex((selectedImageIndex - 1 + galleryImages.length) % galleryImages.length);
+    }
+  };
+  const goToNext = () => {
+    if (selectedImageIndex !== null) {
+      setSelectedImageIndex((selectedImageIndex + 1) % galleryImages.length);
+    }
+  };
 
   return (
     <div className={`min-h-screen bg-gray-100 overflow-visible`}>
@@ -137,9 +153,9 @@ export default function ModernWeddingInvite() {
                   담담히 한 길을 약속하고자 합니다.
                 </p>
                 <p>
-                  그동안 보내 주신<br />
+                  그동안 보내 주신 <br />
                   응원과 정을 깊이 기억하며,<br />
-                  이날 오셔서 기꺼이 내어 주신귀한 걸음으로<br />
+                  이날 오셔서 기꺼이 내어 주신 귀한 걸음으로<br />
                   따뜻한 축복을 보태 주신다면<br />
                   저희에게 더없는 기쁨과 큰 힘이 될 것입니다.
                 </p>
@@ -204,6 +220,7 @@ export default function ModernWeddingInvite() {
               {galleryImages.map((image, index) => (
                 <figure
                   key={index}
+                  onClick={() => openModal(index)}
                   className="aspect-square overflow-hidden hover:opacity-80 transition cursor-pointer"
                 >
                   <SmartImage
@@ -216,6 +233,61 @@ export default function ModernWeddingInvite() {
               ))}
             </div>
           </section>
+
+          {/* 갤러리 모달 */}
+          {selectedImageIndex !== null && (
+            <div 
+              className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-70 backdrop-blur-sm"
+              onClick={closeModal}
+            >
+              {/* 닫기 버튼 */}
+              <button
+                onClick={closeModal}
+                className="absolute top-4 right-4 text-black hover:text-gray-300 transition z-50"
+              >
+                <X className="w-8 h-8" />
+              </button>
+
+              {/* 이전 버튼 */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToPrevious();
+                }}
+                className="absolute left-4 text-black hover:text-gray-300 transition z-50"
+              >
+                <ChevronLeft className="w-10 h-10" />
+              </button>
+
+              {/* 이미지 */}
+              <div 
+                className="max-w-4xl max-h-[90vh] relative"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img
+                  src={galleryImages[selectedImageIndex]}
+                  alt={`Gallery ${selectedImageIndex + 1}`}
+                  className="max-w-full max-h-[90vh] object-contain"
+                />
+                
+                {/* 이미지 카운터 */}
+                <div className="absolute left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-2 rounded-full text-sm">
+                  {selectedImageIndex + 1} / {galleryImages.length}
+                </div>
+              </div>
+
+              {/* 다음 버튼 */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToNext();
+                }}
+                className="absolute right-4 text-black hover:text-gray-300 transition z-50"
+              >
+                <ChevronRight className="w-10 h-10" />
+              </button>
+            </div>
+          )}
 
           {/* 캘린더 & D-DAY */}
           <section ref={sections.calendar} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
@@ -292,12 +364,9 @@ export default function ModernWeddingInvite() {
             <Card className="p-4 sm:p-6">
               {/* 교통 정보 */}
               <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:gap-4 text-sm">
-                <InfoBox icon="🚗" title="자가용 & 주차" info="구로공구상가 주차장 검색
-최대5시간 무료 주차" />
-                <InfoBox icon="🚇" title="지하철" info="1호선 구로역 1번 출구 하차
-출구 나와서 우측 신호등 건너서 도보 1분" />
-                <InfoBox icon="🚌" title="안강 셔틀버스" info="한동아파트 앞 버스정류장에서 오전 8시까지 탑승
-* 오후 4시에 서울에서 출발합니다" />
+                <InfoBox icon="🚗" title="자가용 & 주차" info="구로공구상가 주차장 검색\n최대5시간 무료 주차" />
+                <InfoBox icon="🚇" title="지하철" info="1호선 구로역 1번 출구 하차\n출구 나와서 우측 신호등 건너서 도보 1분" />
+                <InfoBox icon="🚌" title="안강 셔틀버스" info="한동아파트 앞 버스정류장에서 오전 8시까지 탑승\n* 오후 4시에 서울에서 출발합니다" />
               </div>
             </Card>
           </section>
@@ -449,7 +518,14 @@ function InfoBox({ title, info }: { icon: string; title: string; info: string })
   return (
     <div className="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl text-left">
       <p className="text-sm sm:text-base font-bold text-gray-900 mb-1">{title}</p>
-      <p className="text-xs sm:text-sm text-gray-600 whitespace-pre-line">{info}</p>
+      <div className="text-xs sm:text-sm text-gray-600 whitespace-pre-line">
+        {info.split('\\n').map((line, index) => (
+          <span key={index}>
+            {line}
+            {index < info.split('\\n').length - 1 && <br />}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

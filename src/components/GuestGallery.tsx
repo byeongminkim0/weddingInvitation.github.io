@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, deleteDoc, doc, orderBy, query, limit, startAfter, Timestamp, QueryDocumentSnapshot, type DocumentData } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Upload, X, Loader2, Trash2, Camera, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Loader2, Trash2, Camera, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const MODERN = {
   card: "bg-white backdrop-blur-sm",
@@ -36,7 +36,20 @@ export function GuestGallery() {
   const [uploadProgress, setUploadProgress] = useState(0);
   
   // 라이트박스 (사진 크게 보기)
-  const [lightboxPhoto, setLightboxPhoto] = useState<GuestPhoto | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  
+  const openLightbox = (index: number) => setLightboxIndex(index);
+  const closeLightbox = () => setLightboxIndex(null);
+  const goToPreviousPhoto = () => {
+    if (lightboxIndex !== null) {
+      setLightboxIndex((lightboxIndex - 1 + photos.length) % photos.length);
+    }
+  };
+  const goToNextPhoto = () => {
+    if (lightboxIndex !== null) {
+      setLightboxIndex((lightboxIndex + 1) % photos.length);
+    }
+  };
   
   // 삭제 모달
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -397,11 +410,11 @@ export function GuestGallery() {
       ) : (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-            {photos.map((photo) => (
+            {photos.map((photo, index) => (
               <div
                 key={photo.id}
                 className="relative aspect-square group cursor-pointer overflow-hidden rounded-lg shadow hover:shadow-lg transition"
-                onClick={() => setLightboxPhoto(photo)}
+                onClick={() => openLightbox(index)}
               >
                 <img
                   src={photo.imageUrl}
@@ -468,34 +481,59 @@ export function GuestGallery() {
       )}
 
       {/* 라이트박스 (사진 크게 보기) */}
-      {lightboxPhoto && (
+      {lightboxIndex !== null && photos[lightboxIndex] && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
-          onClick={() => setLightboxPhoto(null)}
+          className="fixed inset-0 bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={closeLightbox}
         >
+          {/* 닫기 버튼 */}
           <button
-            onClick={() => setLightboxPhoto(null)}
-            className="absolute top-4 right-4 text-white hover:text-gray-300 transition"
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 text-black hover:text-gray-300 transition z-50"
           >
             <X className="w-8 h-8" />
           </button>
 
-          <div className="max-w-4xl max-h-[90vh] flex flex-col items-center">
+          {/* 이전 버튼 */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              goToPreviousPhoto();
+            }}
+            className="absolute left-4 text-black hover:text-gray-300 transition z-50"
+          >
+            <ChevronLeft className="w-10 h-10" />
+          </button>
+
+          {/* 이미지 */}
+          <div 
+            className="max-w-4xl max-h-[90vh] relative"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
-              src={lightboxPhoto.imageUrl}
-              alt={`${lightboxPhoto.uploaderName}님의 사진`}
+              src={photos[lightboxIndex].imageUrl}
+              alt={`${photos[lightboxIndex].uploaderName}님의 사진`}
               className="max-w-full max-h-[80vh] object-contain rounded-lg"
-              onClick={(e) => e.stopPropagation()}
             />
-            <div className="mt-4 text-center">
-              <p className="text-white font-semibold text-lg">
-                {lightboxPhoto.uploaderName}
-              </p>
-              <p className="text-gray-300 text-sm">
-                {formatDate(lightboxPhoto.createdAt)}
-              </p>
+            
+            {/* 이미지 정보 */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 bg-opacity-50 text-black px-4 py-2 rounded-full text-sm text-center">
+              <p className="font-semibold">{photos[lightboxIndex].uploaderName}</p>
+              <p className="text-xs">{formatDate(photos[lightboxIndex].createdAt)}</p>
+              <p className="text-xs mt-1">{lightboxIndex + 1} / {photos.length}</p>
             </div>
           </div>
+
+          {/* 다음 버튼 */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              goToNextPhoto();
+            }}
+            className="absolute right-4 text-black hover:text-gray-300 transition z-50"
+          >
+            <ChevronRight className="w-10 h-10" />
+          </button>
         </div>
       )}
 
