@@ -171,7 +171,7 @@ export default function ModernWeddingInvite() {
             </div>
 
             {/* 중앙 하트 */}
-            <div className="absolute top-6 sm:top-3 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="absolute top-6 sm:top-9 left-1/2 transform -translate-x-1/2 z-10">
               <div className="p-16 sm:p-19">
                 <img
                   src="/heart.svg"
@@ -184,10 +184,10 @@ export default function ModernWeddingInvite() {
 
           <EllipseBadge text="OUR TIME" />
           <div className="text-center py-8">
-            <p className="text-xs text-black-600 mb-2">{GROOM.name}과 {BRIDE.name}이 함께한지</p>
+            <p className="text-lg text-black-600 mb-2">{GROOM.name}과 {BRIDE.name}이 함께한지</p>
             <TimeSince
               startDate="2020-03-21T00:00:00+09:00"
-              className="font-hamchorong font-bold text-lg text-gray-800"
+              className="font-hamchorong font-bold text-2xl md:text-3xl text-gray-800"
             />
           </div>
 
@@ -460,7 +460,7 @@ function ProfileCard({ person, role }: ProfileCardProps) {
   return (
     <Card className="p-3 sm:p-6">
       <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4">
-        <figure className="w-35 h-35 sm:w-32 sm:h-32 rounded-full overflow-hidden">
+        <figure className="w-35 h-35 sm:w-32 md:w-45 sm:h-32 md:h-45 rounded-full overflow-hidden">
           <SmartImage
             src={person.photo}
             alt={person.name}

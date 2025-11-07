@@ -7,7 +7,14 @@ interface TimeSinceProps {
 
  
 export const TimeSince: React.FC<TimeSinceProps> = ({ startDate, className = '' }) => {
-  const [timeString, setTimeString] = useState('');
+  const [timeData, setTimeData] = useState({
+    years: 0,
+    months: 0,
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
 
   useEffect(() => {
     const calculateTime = () => {
@@ -56,9 +63,14 @@ export const TimeSince: React.FC<TimeSinceProps> = ({ startDate, className = '' 
         finalHours += 24;
       }
       
-      setTimeString(
-        `${years}년 ${months}개월 ${days}일 ${finalHours}시간 ${finalMinutes}분 ${finalSeconds}초`
-      );
+      setTimeData({
+        years,
+        months,
+        days,
+        hours: finalHours,
+        minutes: finalMinutes,
+        seconds: finalSeconds
+      });
     };
 
     calculateTime();
@@ -69,13 +81,12 @@ export const TimeSince: React.FC<TimeSinceProps> = ({ startDate, className = '' 
 
   return (
     <p className={className}>
-      {timeString}
+      <span style={{ color: '#ff0000' }}>{timeData.years}</span>년{' '}
+      <span style={{ color: '#ff0000' }}>{timeData.months}</span>개월{' '}
+      <span style={{ color: '#ff0000' }}>{timeData.days}</span>일{' '}
+      <span style={{ color: '#ff0000' }}>{timeData.hours}</span>시간{' '}
+      <span style={{ color: '#ff0000' }}>{timeData.minutes}</span>분{' '}
+      <span style={{ color: '#ff0000' }}>{timeData.seconds}</span>초
     </p>
   );
 };
-
-// 사용법
-<TimeSince 
-  startDate="2020-03-21T00:00:00+09:00" 
-  className="text-sm text-gray-600"
-/>
