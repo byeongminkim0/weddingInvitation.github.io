@@ -10,33 +10,21 @@ type OTCommand = {
   x2?: number; y2?: number;
 };
 
+// 글리프를 컨투어(획 덩어리) 경로들로 분해
 const glyphToContoursD = (glyph: Glyph, x: number, y: number, fontSize: number): string[] => {
   const pathObj = glyph.getPath(x, y, fontSize);
   const cmds: OTCommand[] = pathObj.commands ?? [];
   const contours: string[] = [];
-
   let d = '';
   for (let i = 0; i < cmds.length; i++) {
     const c = cmds[i];
     switch (c.type) {
-      case 'M':
-        if (d) { contours.push(d); d = ''; }
-        d += `M ${c.x} ${c.y}`;
-        break;
-      case 'L':
-        d += ` L ${c.x} ${c.y}`;
-        break;
-      case 'Q':
-        d += ` Q ${c.x1} ${c.y1} ${c.x} ${c.y}`;
-        break;
-      case 'C':
-        d += ` C ${c.x1} ${c.y1} ${c.x2} ${c.y2} ${c.x} ${c.y}`;
-        break;
-      case 'Z':
-        d += ' Z';
-        break;
-      default:
-        break;
+      case 'M': if (d) { contours.push(d); d = ''; } d += `M ${c.x} ${c.y}`; break;
+      case 'L': d += ` L ${c.x} ${c.y}`; break;
+      case 'Q': d += ` Q ${c.x1} ${c.y1} ${c.x} ${c.y}`; break;
+      case 'C': d += ` C ${c.x1} ${c.y1} ${c.x2} ${c.y2} ${c.x} ${c.y}`; break;
+      case 'Z': d += ' Z'; break;
+      default: break;
     }
   }
   if (d) contours.push(d);
@@ -46,20 +34,27 @@ const glyphToContoursD = (glyph: Glyph, x: number, y: number, fontSize: number):
 type Align = 'left' | 'center' | 'right';
 
 interface HandwritingTextProps {
-  text: string;                   // \n 줄바꿈 지원
-  fontUrl?: string;               // 권장 TTF/OTF (opentype.js 안정)
+  text: string;                   // \n 줄바꿈
+  fontUrl?: string;               // 권장: TTF/OTF
   fontSize?: number;              // px
-  strokeWidth?: number;
-  strokeColor?: string;
-  fillColor?: string | 'none';
-  lineHeight?: number;            // 배수
-  letterSpacing?: number;         // px
-  wordSpacing?: number;           // px
+  // 윤곽선은 기본 끔(0). 켜고 싶으면 >0 지정
+  strokeWidth?: number;           // 윤곽선 두께
+  strokeColor?: string;           // (윤곽/펜촉 색)
+  fillColor?: string | 'none';    // 최종 글자 색
+  lineHeight?: number;
+  letterSpacing?: number;
+  wordSpacing?: number;
   align?: Align;
-  speed?: number;                 // 배속: 1=기본(느려짐 원하면 >1), 0.7은 더 빠름
-  revealFill?: boolean;           // 윤곽 후 채움 페이드인
-  showPen?: boolean;              // 펜촉 표시
-  penRadius?: number;             // 펜촉 반지름
+
+  // 속도/브러시
+  speed?: number;                 // 1=기본, 작을수록 빠름 (예: 0.7 빠름)
+  brushWidthFactor?: number;      // 브러시 굵기 = fontSize * factor (얇게: 0.45~0.55)
+
+  // 연출
+  revealFill?: boolean;           // true면 다 끝난 뒤에도 그대로 유지
+  showPen?: boolean;              // 펜촉 보이기
+  penRadius?: number;
+
   className?: string;
 }
 
@@ -69,28 +64,31 @@ export const HandwritingText: React.FC<HandwritingTextProps> = ({
   text,
   fontUrl = DEFAULT_FONT_URL,
   fontSize = 86,
-  strokeWidth = 2.2,
+  strokeWidth = 0,                 // ✅ 기본: 테두리 끔
   strokeColor = '#1f2937',
-  fillColor = 'none',
+  fillColor = '#1f2937',
   lineHeight = 1.18,
   letterSpacing = 0,
   wordSpacing = 14,
   align = 'center',
-  speed = 1.0,
+
+  speed = 0.7,                     // ✅ 더 빠르게
+  brushWidthFactor = 0.5,          // ✅ 더 얇게
+
   revealFill = true,
   showPen = true,
-  penRadius = 2.4,
+  penRadius = 2.2,
   className = '',
 }) => {
   const [font, setFont] = useState<Font | null>(null);
   const [dList, setDList] = useState<string[]>([]);
-  const [viewBox, setViewBox] = useState<[number, number, number, number]>([0, 0, 900, 220]);
-  const [filled, setFilled] = useState(false);
+  const [viewBox, setViewBox] = useState<[number, number, number, number]>([0,0,900,220]);
+  const [done, setDone] = useState(false);
 
-  const pathRefs = useRef<SVGPathElement[]>([]);
+  const maskPathRefs = useRef<SVGPathElement[]>([]);
   const penRef = useRef<SVGCircleElement | null>(null);
   const rafRef = useRef<number | null>(null);
-  const stopRef = useRef<boolean>(false);
+  const stopRef = useRef(false);
 
   // 안전한 advance(px)
   const charAdvancePx = (f: Font, glyph: Glyph, ch: string, fontSizePx: number, scale: number) => {
@@ -110,12 +108,8 @@ export const HandwritingText: React.FC<HandwritingTextProps> = ({
         const res = await fetch(fontUrl);
         if (!res.ok) throw new Error(`HTTP ${res.status} for ${fontUrl}`);
         const buf = await res.arrayBuffer();
-
         const sig = new TextDecoder().decode(new Uint8Array(buf.slice(0, 12)));
-        if (sig.startsWith('<!DO') || sig.startsWith('<html')) {
-          throw new Error(`Got HTML instead of font: ${fontUrl}`);
-        }
-
+        if (sig.startsWith('<!DO') || sig.startsWith('<html')) throw new Error('Got HTML instead of font');
         const f = opentype.parse(buf);
         if (!canceled) setFont(f);
       } catch (e) {
@@ -128,13 +122,11 @@ export const HandwritingText: React.FC<HandwritingTextProps> = ({
   // 텍스트 → 컨투어 d 리스트
   useEffect(() => {
     if (!font) return;
-
     const lines = text.split('\n');
     const unitsPerEm = font.unitsPerEm ?? 1000;
     const scale = fontSize / unitsPerEm;
     const lineGap = fontSize * lineHeight;
 
-    // 줄 폭
     const lineWidths = lines.map(line => {
       let w = 0;
       for (const ch of line) {
@@ -147,29 +139,22 @@ export const HandwritingText: React.FC<HandwritingTextProps> = ({
 
     const maxWidth = Math.max(...lineWidths, 1);
     const height = Math.max(lines.length * lineGap, fontSize * 1.4);
-
-    const startXFor = (w: number) => {
-      if (align === 'left') return 0;
-      if (align === 'right') return maxWidth - w;
-      return (maxWidth - w) / 2;
-    };
+    const startXFor = (w: number) => align === 'left' ? 0 : align === 'right' ? maxWidth - w : (maxWidth - w)/2;
 
     const allD: string[] = [];
     lines.forEach((line, rowIndex) => {
       let x = startXFor(lineWidths[rowIndex]);
-      const yBaseline = (rowIndex + 1) * lineGap;
-
+      const y = (rowIndex + 1) * lineGap;
       for (const ch of line) {
         if (ch === ' ') { x += wordSpacing; continue; }
-        const glyph = font.charToGlyph(ch);
-        const contours = glyphToContoursD(glyph, x, yBaseline, fontSize);
-        allD.push(...contours);
-        x += charAdvancePx(font, glyph, ch, fontSize, scale) + letterSpacing;
+        const g = font.charToGlyph(ch);
+        allD.push(...glyphToContoursD(g, x, y, fontSize));
+        x += charAdvancePx(font, g, ch, fontSize, scale) + letterSpacing;
       }
     });
 
-    setFilled(false);
     setDList(allD);
+    setDone(false);
     setViewBox([
       -Math.ceil(maxWidth * 0.06),
       -Math.ceil(fontSize * 0.35),
@@ -178,87 +163,68 @@ export const HandwritingText: React.FC<HandwritingTextProps> = ({
     ]);
   }, [font, text, fontSize, lineHeight, letterSpacing, wordSpacing, align]);
 
-  // 순차 애니메이션 (WAAPI + rAF로 펜촉 이동)
+  // 브러시 마스크 순차 애니메이션 → 칠해지는 즉시 화면에 보임
   useEffect(() => {
     if (!dList.length) return;
 
-    // 접근성: 선호도 체크
     const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) {
-      // 애니메이션 없이 완성 상태로
-      pathRefs.current.forEach(p => {
+      // 모션 최소화: 바로 완성
+      maskPathRefs.current.forEach(p => {
         if (!p) return;
         const len = p.getTotalLength();
         p.style.strokeDasharray = `${len}`;
         p.style.strokeDashoffset = `0`;
       });
-      setFilled(true);
+      setDone(true);
       return;
     }
 
     stopRef.current = false;
-    const pxPerSecondBase = 420;
-    const pxPerSecond = pxPerSecondBase / Math.max(speed, 0.1);
-    const minDur = 0.08;
+
+    // 더 빠르게: 기본 펜 속도 올림
+    const pxPerSecondBase = 600;                    // ← 기존 420보다 빠름
+    const pxPerSecond = pxPerSecondBase / Math.max(speed, 0.1); // speed↓ → 더 빠름
+    const minDur = 0.06;                            // 짧은 획도 너무 번쩍되지 않게 최소 보호
 
     const animateOne = (el: SVGPathElement): Promise<void> =>
       new Promise((resolve) => {
         const len = el.getTotalLength();
         el.style.strokeDasharray = `${len}`;
         el.style.strokeDashoffset = `${len}`;
-
-        // 펜촉 보이기
-        const pen = penRef.current;
-        if (pen && showPen) {
-          pen.style.opacity = '1';
-        }
-
         const duration = Math.max(minDur, len / pxPerSecond) * 1000; // ms
         const start = performance.now();
 
-        // strokeDashoffset 애니메이션 (WAAPI)
         const anim = el.animate(
           [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
           { duration, easing: 'linear', fill: 'forwards' }
         );
 
-        // 펜촉 위치 rAF로 갱신
+        const pen = penRef.current;
+        if (pen && showPen) pen.style.opacity = '1';
+
         const tick = (t: number) => {
-          if (stopRef.current) {
-            anim.cancel();
-            if (pen) pen.style.opacity = '0';
-            resolve();
-            return;
-          }
-          const elapsed = t - start;
-          const progress = Math.min(1, Math.max(0, elapsed / duration));
-          const dist = len * progress; // 그린 길이
+          if (stopRef.current) { anim.cancel(); if (pen) pen.style.opacity = '0'; resolve(); return; }
+          const pr = Math.min(1, Math.max(0, (t - start) / duration));
+          const dist = len * pr;
           if (pen && showPen) {
             try {
               const pt = el.getPointAtLength(dist);
               pen.setAttribute('cx', String(pt.x));
               pen.setAttribute('cy', String(pt.y));
-            } catch { /* noop */ }
+            } catch { /* empty */ }
           }
-          if (progress < 1) {
-            rafRef.current = requestAnimationFrame(tick);
-          }
+          if (pr < 1) rafRef.current = requestAnimationFrame(tick);
         };
         rafRef.current = requestAnimationFrame(tick);
 
-        anim.onfinish = () => {
-          if (pen && showPen) pen.style.opacity = '0';
-          resolve();
-        };
-        anim.oncancel = () => {
-          if (pen && showPen) pen.style.opacity = '0';
-          resolve();
-        };
+        anim.onfinish = () => { if (pen) pen.style.opacity = '0'; resolve(); };
+        anim.oncancel  = () => { if (pen) pen.style.opacity = '0'; resolve(); };
       });
 
     (async () => {
       // 초기화
-      pathRefs.current.forEach(p => {
+      maskPathRefs.current.forEach(p => {
         if (!p) return;
         p.getAnimations().forEach(a => a.cancel());
         const len = p.getTotalLength();
@@ -266,77 +232,68 @@ export const HandwritingText: React.FC<HandwritingTextProps> = ({
         p.style.strokeDashoffset = `${len}`;
       });
 
-      // 순차로 하나씩
-      for (const el of pathRefs.current) {
+      // 완전 순차
+      for (const el of maskPathRefs.current) {
         if (!el) continue;
         await animateOne(el);
         if (stopRef.current) break;
       }
-      // 다 끝나면 fill 페이드인
-      setFilled(true);
+      setDone(true);
     })();
 
     return () => {
       stopRef.current = true;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      pathRefs.current.forEach(p => p?.getAnimations().forEach(a => a.cancel()));
+      maskPathRefs.current.forEach(p => p?.getAnimations().forEach(a => a.cancel()));
     };
   }, [dList, speed, showPen]);
 
-  const fillOpacity = useMemo(() => (revealFill ? (filled ? 1 : 0) : 1), [filled, revealFill]);
+  // 얇은 브러시
+  const brushWidth = useMemo(
+    () => Math.max(1.2, fontSize * brushWidthFactor),
+    [fontSize, brushWidthFactor]
+  );
+
+  // 그려지는 즉시 보이므로, finish 후에도 유지할지 여부만 결정
+  const fillOpacity = useMemo(() => (revealFill ? (done ? 1 : 1) : 1), [done, revealFill]);
 
   return (
     <div className={className}>
-      <svg
-        viewBox={viewBox.join(' ')}
-        className="w-full h-auto"
-        preserveAspectRatio="xMidYMid meet"
-      >
+      <svg viewBox={viewBox.join(' ')} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
         <defs>
-          <filter id="ink-blur" x="-5%" y="-5%" width="110%" height="110%">
-            <feGaussianBlur stdDeviation="0.35" />
-          </filter>
+          {/* 브러시가 지나간 곳만 보이게 하는 마스크 */}
+          <mask id="revealMask" maskUnits="userSpaceOnUse">
+            <rect x={viewBox[0]} y={viewBox[1]} width={viewBox[2]} height={viewBox[3]} fill="black" />
+            <g fill="none" stroke="white" strokeLinecap="round" strokeLinejoin="round">
+              {dList.map((d, i) => (
+                <path
+                  key={`m-${i}`}
+                  ref={el => { if (el) maskPathRefs.current[i] = el; }}
+                  d={d}
+                  strokeWidth={brushWidth}   // ✅ 얇은 브러시
+                />
+              ))}
+            </g>
+          </mask>
         </defs>
 
-        {/* 윤곽(펜) 레이어 */}
-        <g
-          fill="none"
-          stroke={strokeColor}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          filter="url(#ink-blur)"
-        >
-          {dList.map((d, i) => (
-            <path
-              key={i}
-              ref={el => { if (el) pathRefs.current[i] = el; }}
-              d={d}
-            />
-          ))}
-        </g>
-
-        {/* 펜촉 */}
-        {showPen && (
-          <circle
-            ref={penRef}
-            r={penRadius}
-            fill={strokeColor}
-            opacity={0}
-          />
+        {/* (선택) 윤곽선: 기본 0이라 표시 안 됨 */}
+        {strokeWidth > 0 && (
+          <g fill="none" stroke={strokeColor} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+            {dList.map((d, i) => <path key={`o-${i}`} d={d} />)}
+          </g>
         )}
 
-        {/* 채움 레이어 */}
+        {/* 채움 레이어: 마스크로 브러시 지나간 즉시 보임 */}
         {fillColor !== 'none' && (
-          <g
-            fill={fillColor}
-            stroke="none"
-            style={{ transition: 'opacity .45s ease-out', opacity: fillOpacity }}
-          >
-            {dList.map((d, i) => (
-              <path key={`f-${i}`} d={d} />
-            ))}
+          <g fill={fillColor} stroke="none" mask="url(#revealMask)" style={{ opacity: fillOpacity }}>
+            {dList.map((d, i) => <path key={`f-${i}`} d={d} />)}
           </g>
+        )}
+
+        {/* 펜촉(옵션) */}
+        {showPen && (
+          <circle ref={penRef} r={penRadius} fill={strokeColor} opacity={0} />
         )}
       </svg>
     </div>

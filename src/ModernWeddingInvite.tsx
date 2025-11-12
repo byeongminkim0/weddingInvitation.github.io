@@ -35,8 +35,6 @@ const MODERN = {
   }
 };
 
-const DEFAULT_FONT_URL = '/fonts/DancingScript-Regular.ttf';
-
 /** ===== 웨딩 정보 ===== */
 const WEDDING_DATE = "2026-06-13T14:00:00+09:00"; // 2026년 6월 13일 오후 2시
 const VENUE_NAME = "제이오스티엘";
@@ -193,19 +191,14 @@ export default function ModernWeddingInvite() {
               {/* 하단 필기체 텍스트 - 손글씨 효과 */}
               <div className="absolute bottom-10 left-0 right-0 flex justify-center z-10 px-4 text-center">
                 <HandwritingText
-                  text={`We getting\nmarried!`}
-                  fontUrl={DEFAULT_FONT_URL}
-                  fontSize={92}
-                  strokeWidth={2.1}
-                  strokeColor="#111827"
-                  fillColor="#111827"     // 윤곽 후 잉크 채우기
-                  lineHeight={1.1}
-                  letterSpacing={-2}
-                  wordSpacing={12}
-                  align="center"
-                  speed={1.0}             // >1.0이면 더 느려짐
-                  revealFill={true}
-                  className="w-full max-w-2xl drop-shadow-lg"
+                  text={`We're getting\nmarried!`}
+                  fontSize={100}
+                  fillColor="#111827"
+                  strokeWidth={0}          // 테두리 끔
+                  speed={0.5}              // 더 빠르게 (0.6~0.9 추천)
+                  brushWidthFactor={0.08}   // 더 얇게 (0.45~0.55)
+                  showPen={false}
+                  penRadius={2}
                 />
               </div>
             </figure>
