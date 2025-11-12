@@ -192,21 +192,21 @@ export default function ModernWeddingInvite() {
 
               {/* 하단 필기체 텍스트 - 손글씨 효과 */}
               <div className="absolute bottom-10 left-0 right-0 flex justify-center z-10 px-4 text-center">
-              <HandwritingText
-                text={`We getting\nmarried!`}
-                fontUrl={DEFAULT_FONT_URL}
-                fontSize={92}
-                strokeWidth={2.1}
-                strokeColor="#111827"
-                fillColor="#111827"     // 윤곽 후 잉크 채우기
-                lineHeight={1.1}
-                letterSpacing={-2}
-                wordSpacing={12}
-                align="center"
-                speed={1.0}             // >1.0이면 더 느려짐
-                revealFill={true}
-                className="w-full max-w-2xl drop-shadow-lg"
-              />
+                <HandwritingText
+                  text={`We getting\nmarried!`}
+                  fontUrl={DEFAULT_FONT_URL}
+                  fontSize={92}
+                  strokeWidth={2.1}
+                  strokeColor="#111827"
+                  fillColor="#111827"     // 윤곽 후 잉크 채우기
+                  lineHeight={1.1}
+                  letterSpacing={-2}
+                  wordSpacing={12}
+                  align="center"
+                  speed={1.0}             // >1.0이면 더 느려짐
+                  revealFill={true}
+                  className="w-full max-w-2xl drop-shadow-lg"
+                />
               </div>
             </figure>
           </section>
@@ -215,7 +215,6 @@ export default function ModernWeddingInvite() {
           <section ref={sections.greeting} className="max-w-2xl mx-auto px-3 sm:px-4 pt-8 pb-8 sm:pb-12">
             <Card className="p-6 sm:p-8 text-center">
               <EllipseBadge text="INVITATION" />
-              <br />
               <br />
               <h1 className={`${MODERN.text.title} font-serif text-gray-900 mb-4 sm:mb-6`}>
                 소중한 분들을 모십니다
@@ -259,7 +258,8 @@ export default function ModernWeddingInvite() {
           </section>
 
           <EllipseBadge text="OUR TIME" />
-          <div className="text-center py-8">
+          <br />
+          <div className="text-center">
             <p className={`${MODERN.text.bodyLarge} text-black-600 mb-2`}>
               {GROOM.name}과 {BRIDE.name}이 함께한지
             </p>
