@@ -1,18 +1,41 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import { Calendar as MapPin, Phone, User, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { TimeSince } from "./components/TimeSince";
 import { Guestbook } from "./components/Guestbook";
 import { GuestGallery } from "./components/GuestGallery";
+import { HandwritingText } from "./components/Handwritingtext";
 
 /** ===== 디자인 토큰 ===== */
 const MODERN = {
+  // 기본 스타일
   base: "text-gray-800",
   card: "bg-white backdrop-blur-sm",
   btn: "rounded-lg px-4 py-2 text-sm font-medium transition",
   primary: "bg-rose-500 text-white hover:bg-rose-600",
   soft: "bg-white hover:bg-gray-50 text-gray-700 backdrop-blur-sm border border-gray-200",
   pill: "rounded-full px-4 py-2 text-sm bg-white text-rose-700 backdrop-blur-sm border border-rose-100",
+
+  // 텍스트 크기 공통 관리
+  text: {
+    // 제목 크기
+    hero: "text-3xl sm:text-5xl",           // 메인 히어로 타이틀
+    title: "text-2xl sm:text-3xl",          // 주요 섹션 제목
+    subtitle: "text-xl sm:text-2xl",        // 부제목
+
+    // 본문 크기
+    body: "text-sm sm:text-base",           // 기본 본문
+    bodyLarge: "text-base sm:text-lg",      // 큰 본문
+
+    // 작은 텍스트
+    small: "text-xs sm:text-sm",            // 작은 텍스트
+    caption: "text-xs",                     // 캡션/힌트
+
+    // 날짜/시간
+    date: "text-lg sm:text-3xl",            // 날짜 표시
+  }
 };
+
+const DEFAULT_FONT_URL = '/fonts/DancingScript-Regular.ttf';
 
 /** ===== 웨딩 정보 ===== */
 const WEDDING_DATE = "2026-06-13T14:00:00+09:00"; // 2026년 6월 13일 오후 2시
@@ -81,11 +104,19 @@ export default function ModernWeddingInvite() {
 
   /** 갤러리 이미지 (24개) */
   const galleryImages = Array.from({ length: 24 }, (_, i) => `/gallery/gallery${i + 1}.jpg`);
-  
+
   /** 갤러리 모달 상태 */
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-  
-  const openModal = (index: number) => setSelectedImageIndex(index);
+
+  // 모바일 체크 함수
+  const isMobile = () => window.innerWidth < 768;
+
+  const openModal = (index: number) => {
+    // 모바일에서는 모달을 열지 않음
+    if (!isMobile()) {
+      setSelectedImageIndex(index);
+    }
+  };
   const closeModal = () => setSelectedImageIndex(null);
   const goToPrevious = () => {
     if (selectedImageIndex !== null) {
@@ -98,53 +129,98 @@ export default function ModernWeddingInvite() {
     }
   };
 
+  // 복사-붙여넣기 방지
+  useEffect(() => {
+    const preventCopy = (e: ClipboardEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    const preventCut = (e: ClipboardEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    const preventPaste = (e: ClipboardEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    const preventContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    document.addEventListener('copy', preventCopy);
+    document.addEventListener('cut', preventCut);
+    document.addEventListener('paste', preventPaste);
+    document.addEventListener('contextmenu', preventContextMenu);
+
+    return () => {
+      document.removeEventListener('copy', preventCopy);
+      document.removeEventListener('cut', preventCut);
+      document.removeEventListener('paste', preventPaste);
+      document.removeEventListener('contextmenu', preventContextMenu);
+    };
+  }, []);
+
   return (
     <div className={`min-h-screen bg-gray-100 overflow-visible`}>
-    {/* 메인 컨테이너 - 모바일 폭으로 제한 */}
-    <div className="max-w-lg mx-auto bg-white min-h-screen overflow-visible">
-      <div className={`${MODERN.base} overflow-visible`}>
-        {/* Hero - 메인 웨딩 사진 */}
-        <section ref={sections.hero} className="overflow-visible mb-16 sm:mb-20">
-          <figure className="h-screen relative overflow-visible">
-            {/* 메인 이미지 */}
-            <SmartImage
-              src="/main.jpg"
-              alt="Wedding Photo"
-              className="w-full h-full object-cover"
-              aspect=""
-            />
-
-            {/* 상단 텍스트 오버레이 */}
-            <div className="absolute top-0 left-0 right-0 pt-6 sm:pt-8 text-center z-10">
-              <p className="text-lg sm:text-3xl font-medium drop-shadow-lg">
-                {year}.{String(month + 1).padStart(2, '0')}.{String(date).padStart(2, '0')} 토요일 오후 2시
-              </p>
-              <p className="text-3xl sm:text-5xl font-medium drop-shadow-lg mt-2">
-                김{GROOM.name}♥김{BRIDE.name}
-              </p>
-            </div>
-
-            {/* 하단 필기체 텍스트 - 써지는 효과 */}
-            <div className="absolute -bottom-8 sm:-bottom-12 left-0 right-0 flex justify-center z-10">
-              <img
-                src="/we-getting-married.png"
-                alt="We getting married"
-                className="w-4/5 sm:w-3/4 animate-write"
+      {/* 메인 컨테이너 - 모바일 폭으로 제한 */}
+      <div className="max-w-lg mx-auto bg-white min-h-screen overflow-visible">
+        <div className={`${MODERN.base} overflow-visible`}>
+          {/* Hero - 메인 웨딩 사진 */}
+          <section ref={sections.hero} className="overflow-visible mb-16 sm:mb-20">
+            <figure className="h-screen relative overflow-visible">
+              {/* 메인 이미지 */}
+              <SmartImage
+                src="/main.jpg"
+                alt="Wedding Photo"
+                className="w-full h-full object-cover"
+                aspect=""
               />
-            </div>
-          </figure>
-        </section>
 
-        {/* 초대 메시지 - 추가 패딩 */}
-        <section ref={sections.greeting} className="max-w-2xl mx-auto px-3 sm:px-4 pt-8 pb-8 sm:pb-12">
+              {/* 상단 텍스트 오버레이 */}
+              <div className="absolute top-0 left-0 right-0 pt-6 sm:pt-8 text-center z-10">
+                <p className={`${MODERN.text.date} font-medium drop-shadow-lg`}>
+                  {year}.{String(month + 1).padStart(2, '0')}.{String(date).padStart(2, '0')} 토요일 오후 2시
+                </p>
+                <p className={`${MODERN.text.hero} font-medium drop-shadow-lg mt-2`}>
+                  김{GROOM.name}♥김{BRIDE.name}
+                </p>
+              </div>
+
+              {/* 하단 필기체 텍스트 - 손글씨 효과 */}
+              <div className="absolute bottom-10 left-0 right-0 flex justify-center z-10 px-4 text-center">
+              <HandwritingText
+                text={`We getting\nmarried!`}
+                fontUrl={DEFAULT_FONT_URL}
+                fontSize={92}
+                strokeWidth={2.1}
+                strokeColor="#111827"
+                fillColor="#111827"     // 윤곽 후 잉크 채우기
+                lineHeight={1.1}
+                letterSpacing={-2}
+                wordSpacing={12}
+                align="center"
+                speed={1.0}             // >1.0이면 더 느려짐
+                revealFill={true}
+                className="w-full max-w-2xl drop-shadow-lg"
+              />
+              </div>
+            </figure>
+          </section>
+
+          {/* 초대 메시지 - 추가 패딩 */}
+          <section ref={sections.greeting} className="max-w-2xl mx-auto px-3 sm:px-4 pt-8 pb-8 sm:pb-12">
             <Card className="p-6 sm:p-8 text-center">
               <EllipseBadge text="INVITATION" />
               <br />
               <br />
-              <h1 className="text-2xl sm:text-3xl font-serif text-gray-900 mb-4 sm:mb-6">
+              <h1 className={`${MODERN.text.title} font-serif text-gray-900 mb-4 sm:mb-6`}>
                 소중한 분들을 모십니다
               </h1>
-              <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed">
+              <div className={`space-y-3 sm:space-y-4 ${MODERN.text.body} text-gray-700 leading-relaxed`}>
                 <p>
                   어릴 적 스치듯 지나가던 작은 인사가<br />
                   긴 시간의 여백을 건너<br />
@@ -184,7 +260,9 @@ export default function ModernWeddingInvite() {
 
           <EllipseBadge text="OUR TIME" />
           <div className="text-center py-8">
-            <p className="text-lg text-black-600 mb-2">{GROOM.name}과 {BRIDE.name}이 함께한지</p>
+            <p className={`${MODERN.text.bodyLarge} text-black-600 mb-2`}>
+              {GROOM.name}과 {BRIDE.name}이 함께한지
+            </p>
             <TimeSince
               startDate="2020-03-21T00:00:00+09:00"
               className="font-hamchorong font-bold text-2xl md:text-3xl text-gray-800"
@@ -234,9 +312,9 @@ export default function ModernWeddingInvite() {
             </div>
           </section>
 
-          {/* 갤러리 모달 */}
-          {selectedImageIndex !== null && (
-            <div 
+          {/* 갤러리 모달 - 데스크톱에서만 표시 */}
+          {selectedImageIndex !== null && !isMobile() && (
+            <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-70 backdrop-blur-sm"
               onClick={closeModal}
             >
@@ -260,7 +338,7 @@ export default function ModernWeddingInvite() {
               </button>
 
               {/* 이미지 */}
-              <div 
+              <div
                 className="max-w-4xl max-h-[90vh] relative"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -269,9 +347,9 @@ export default function ModernWeddingInvite() {
                   alt={`Gallery ${selectedImageIndex + 1}`}
                   className="max-w-full max-h-[90vh] object-contain"
                 />
-                
+
                 {/* 이미지 카운터 */}
-                <div className="absolute left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-2 rounded-full text-sm">
+                <div className={`absolute left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-2 rounded-full ${MODERN.text.small}`}>
                   {selectedImageIndex + 1} / {galleryImages.length}
                 </div>
               </div>
@@ -295,7 +373,7 @@ export default function ModernWeddingInvite() {
               <div className="text-center mb-6 sm:mb-8">
                 <EllipseBadge text="WEDDING DAY" />
                 <br />
-                <p className="text-sm sm:text-base text-gray-900 font-bold">
+                <p className={`${MODERN.text.body} text-gray-900 font-bold`}>
                   {year}년 {month + 1}월 {date}일 토요일 오후 2시<br />
                   {VENUE_NAME}
                 </p>
@@ -321,7 +399,7 @@ export default function ModernWeddingInvite() {
                             <span className={`
                                               inline-flex h-10 w-10 items-center justify-center rounded-full
                                               ${isWeddingDay ? "bg-rose-500 text-white font-bold" :
-                                                    isSunday ? "text-red-500 font-bold" : "text-gray-700"}
+                                isSunday ? "text-red-500 font-bold" : "text-gray-700"}
                                             `}>
                               {cell.d}
                             </span>
@@ -337,7 +415,7 @@ export default function ModernWeddingInvite() {
 
           {/* 오시는 길 상세 (교통수단) */}
           <section ref={sections.directions} className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
-            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 text-center">
+            <h2 className={`${MODERN.text.subtitle} font-semibold text-gray-900 mb-4 sm:mb-6 text-center`}>
               오시는 길
             </h2>
             {/* 지도 + 네비 버튼 (붙어있는 형태) */}
@@ -345,25 +423,25 @@ export default function ModernWeddingInvite() {
               {/* 지도 */}
               <div className="bg-gradient-to-br from-gray-100 to-gray-50 h-60 sm:h-80 flex flex-col items-center justify-center">
                 <MapPin className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
-                <span className="ml-2 text-sm sm:text-base text-gray-500">지도 API 연동 영역</span>
+                <span className={`ml-2 ${MODERN.text.body} text-gray-500`}>지도 API 연동 영역</span>
               </div>
 
               {/* 네비게이션 버튼 3개 */}
               <div className="grid grid-cols-3 bg-black">
-                <a href={MAP_LINK_NAVER} target="_blank" rel="noopener noreferrer" className="py-3 sm:py-4 text-center text-white text-xs sm:text-sm font-bold hover:bg-gray-800 transition border-r border-gray-700">
+                <a href={MAP_LINK_NAVER} target="_blank" rel="noopener noreferrer" className={`py-3 sm:py-4 text-center text-white ${MODERN.text.small} font-bold hover:bg-gray-800 transition border-r border-gray-700`}>
                   네이버지도 내비
                 </a>
-                <a href={MAP_LINK_KAKAO} target="_blank" rel="noopener noreferrer" className="py-3 sm:py-4 text-center text-white text-xs sm:text-sm font-bold hover:bg-gray-800 transition border-r border-gray-700">
+                <a href={MAP_LINK_KAKAO} target="_blank" rel="noopener noreferrer" className={`py-3 sm:py-4 text-center text-white ${MODERN.text.small} font-bold hover:bg-gray-800 transition border-r border-gray-700`}>
                   카카오맵 내비
                 </a>
-                <a href={MAP_LINK_TMAP} target="_blank" rel="noopener noreferrer" className="py-3 sm:py-4 text-center text-white text-xs sm:text-sm font-bold hover:bg-gray-800 transition">
+                <a href={MAP_LINK_TMAP} target="_blank" rel="noopener noreferrer" className={`py-3 sm:py-4 text-center text-white ${MODERN.text.small} font-bold hover:bg-gray-800 transition`}>
                   T맵 내비
                 </a>
               </div>
             </div>
             <Card className="p-4 sm:p-6">
               {/* 교통 정보 */}
-              <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:gap-4 text-sm">
+              <div className={`grid grid-cols-1 sm:grid-cols-1 gap-3 sm:gap-4 ${MODERN.text.small}`}>
                 <InfoBox icon="🚗" title="자가용 & 주차" info="구로공구상가 주차장 검색\n최대5시간 무료 주차" />
                 <InfoBox icon="🚇" title="지하철" info="1호선 구로역 1번 출구 하차\n출구 나와서 우측 신호등 건너서 도보 1분" />
                 <InfoBox icon="🚌" title="안강 셔틀버스" info="한동아파트 앞 버스정류장에서 오전 8시까지 탑승\n* 오후 4시에 서울에서 출발합니다" />
@@ -376,11 +454,11 @@ export default function ModernWeddingInvite() {
             <Card className="p-6 sm:p-8 text-center">
               <EllipseBadge text="INFORMATION" />
               <br />
-              <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 text-center">
+              <h2 className={`${MODERN.text.subtitle} font-semibold text-gray-900 mb-4 sm:mb-6 text-center`}>
                 마음 전하실 곳
               </h2>
 
-              <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed">
+              <div className={`space-y-3 sm:space-y-4 ${MODERN.text.body} text-gray-700 leading-relaxed`}>
                 <p>
                   직접 축하를 전해주시기 어려운 분들을 위해<br />
                   아래에 계좌 안내를 드립니다<br />
@@ -410,31 +488,6 @@ export default function ModernWeddingInvite() {
           <section ref={sections.guestGallery} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
             <GuestGallery />
           </section>
-
-          {/* 감사 메시지 섹션 */}
-          {/* <section className="pb-8 sm:pb-12">
-            <img
-              src="/wide.png"
-              alt="Thank you"
-              className="w-full h-auto object-cover"
-            />
-            <Card className="p-6 sm:p-8 text-center">
-              <br />
-              <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-black-700 leading-relaxed">
-                <p>
-                  오랜 이어진 인사가 오늘 약속이 됩니다.<br />
-                  오셔서 따뜻히 축복해 주세요.<br />
-                  그 마음 꼭 기억할게요.
-                </p>
-              </div>
-              <div className="my-4 sm:my-6">
-                <div className="w-24 h-px bg-gray-800 mx-auto"></div>
-              </div>
-              <p className="text-base sm:text-lg font-medium text-gray-900">
-                {BRIDE.name}과 {GROOM.name}
-              </p>
-            </Card>
-          </section> */}
         </div>
       </div>
     </div>
@@ -463,15 +516,15 @@ function ProfileCard({ person, role }: ProfileCardProps) {
           />
         </figure>
         <div>
-          <p className="text-xs sm:text-sm text-gray-600 mt-1.5 sm:mt-2">
+          <p className={`${MODERN.text.small} text-gray-600 mt-1.5 sm:mt-2`}>
             {person.name === "병민" ? <img src="/flower.svg" alt="heart" className="inline w-4 h-4 mx-1" /> : ''}{person.parents.father} · {person.parents.mother} 의 {person.relation}
           </p>
-          <p className="inline-block text-xs sm:text-sm text-gray-500">{role}</p>
-          <p className="inline-block text-lg sm:text-xl font-semibold text-gray-900 ml-2">{person.name}</p>
+          <p className={`inline-block ${MODERN.text.small} text-gray-500`}>{role}</p>
+          <p className={`inline-block ${MODERN.text.bodyLarge} font-semibold text-gray-900 ml-2`}>{person.name}</p>
         </div>
         <a
           href={`tel:${person.phone}`}
-          className={`${MODERN.btn} ${MODERN.soft} inline-flex items-center gap-2 text-xs sm:text-sm`}
+          className={`${MODERN.btn} ${MODERN.soft} inline-flex items-center gap-2 ${MODERN.text.small}`}
         >
           <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           연락하기
@@ -511,8 +564,8 @@ const EllipseBadge: React.FC<BadgeProps> = ({ text }) => {
 function InfoBox({ title, info }: { icon: string; title: string; info: string }) {
   return (
     <div className="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl text-left">
-      <p className="text-sm sm:text-base font-bold text-gray-900 mb-1">{title}</p>
-      <div className="text-xs sm:text-sm text-gray-600 whitespace-pre-line">
+      <p className={`${MODERN.text.body} font-bold text-gray-900 mb-1`}>{title}</p>
+      <div className={`${MODERN.text.small} text-gray-600 whitespace-pre-line`}>
         {info.split('\\n').map((line, index) => (
           <span key={index}>
             {line}
@@ -533,7 +586,7 @@ function AccountBoxSelect({ accounts }: { accounts: Array<{ bank: string; num: s
       <select
         value={selectedIndex}
         onChange={(e) => setSelectedIndex(Number(e.target.value))}
-        className="w-full mb-3 px-3 py-3 text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
+        className={`w-full mb-3 px-3 py-3 ${MODERN.text.small} border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white`}
       >
         {accounts.map((account, index) => (
           <option key={index} value={index}>
@@ -567,7 +620,7 @@ function SmartImage({
       >
         <div className="text-center text-gray-400">
           <User className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2" />
-          <p className="text-xs sm:text-sm">이미지 준비중</p>
+          <p className={MODERN.text.small}>이미지 준비중</p>
         </div>
       </div>
     );

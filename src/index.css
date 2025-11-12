@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Google Fonts - 필기체 폰트들 */
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Pacifico&family=Allura&family=Sacramento&display=swap');
+
 @layer base {
   :root {
     --sage-bg: #ffffff;
@@ -30,6 +33,25 @@
     height: auto;
     display: block;
   }
+
+  /* 복사-붙여넣기 방지 */
+  * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* 입력 필드는 복사 가능하도록 예외 처리 */
+  input,
+  textarea,
+  [contenteditable="true"] {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
 }
 
 @layer utilities {
@@ -43,6 +65,32 @@
 
   .font-pretendard {
     font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+
+  /* 필기체 폰트 스타일 옵션 */
+  .handwriting-dancing {
+    font-family: 'Dancing Script', cursive;
+    font-weight: 600;
+  }
+
+  .handwriting-great-vibes {
+    font-family: 'Great Vibes', cursive;
+    font-weight: 400;
+  }
+
+  .handwriting-pacifico {
+    font-family: 'Pacifico', cursive;
+    font-weight: 400;
+  }
+
+  .handwriting-allura {
+    font-family: 'Allura', cursive;
+    font-weight: 400;
+  }
+
+  .handwriting-sacramento {
+    font-family: 'Sacramento', cursive;
+    font-weight: 400;
   }
 
   /* 기본 애니메이션 효과 */
@@ -77,23 +125,50 @@
     }
   }
 
-  /* 글씨 써지는 효과 */
-  @keyframes writeHandwriting {
+  /* 손글씨 타이핑 효과 - 방법 1 (가장 자연스러움) */
+  @keyframes handwritingReveal {
+    0% {
+      width: 0;
+      opacity: 0;
+    }
+    1% {
+      opacity: 1;
+    }
+    100% {
+      width: 100%;
+      opacity: 1;
+    }
+  }
+
+  /* 손글씨 그라데이션 reveal 효과 - 방법 2 */
+  @keyframes handwritingGradient {
+    0% {
+      background-position: -500%;
+      opacity: 0;
+    }
+    1% {
+      opacity: 1;
+    }
+    100% {
+      background-position: 500%;
+      opacity: 1;
+    }
+  }
+
+  /* 손글씨 클립 패스 효과 - 방법 3 */
+  @keyframes handwritingClip {
     0% {
       opacity: 0;
       clip-path: polygon(0 0, 0% 0, 0% 100%, 0 100%);
     }
-    25% {
+    20% {
       opacity: 0.3;
-      clip-path: polygon(0 0, 30% 0, 25% 100%, 0 100%);
     }
-    50% {
+    40% {
       opacity: 0.6;
-      clip-path: polygon(0 0, 60% 0, 55% 100%, 0 100%);
     }
-    75% {
+    60% {
       opacity: 0.9;
-      clip-path: polygon(0 0, 85% 0, 80% 100%, 0 100%);
     }
     100% {
       opacity: 1;
@@ -101,7 +176,22 @@
     }
   }
 
-  /* 애니메이션 클래스 */
+  /* 펜 그리는 듯한 효과 */
+  @keyframes penDraw {
+    0% {
+      stroke-dashoffset: 1000;
+      opacity: 0;
+    }
+    1% {
+      opacity: 1;
+    }
+    100% {
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+  }
+
+  /* 애니메이션 클래스들 */
   .animate-fade-in-up {
     animation: fadeInUp 1.5s ease-out;
   }
@@ -114,10 +204,47 @@
     animation: scaleIn 1s ease-out;
   }
 
-  .animate-write {
-    animation: writeHandwriting 3s ease-in-out;
-    animation-delay: 0.5s;
-    animation-fill-mode: both;
+  /* 손글씨 애니메이션 - 스타일 1: 타이핑 */
+  .animate-handwriting-type {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: handwritingReveal 3.5s steps(50) 0.5s both,
+               handShake 0.15s ease-in-out infinite;
+    letter-spacing: 0.05em;
+  }
+
+  /* 손글씨 애니메이션 - 스타일 2: 그라데이션 reveal */
+  .animate-handwriting-gradient {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      currentColor 40%,
+      currentColor 60%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    animation: handwritingGradient 3s ease-in-out 0.5s both,
+               handShake 0.15s ease-in-out infinite;
+    letter-spacing: 0.05em;
+  }
+
+  /* 손글씨 애니메이션 - 스타일 3: 클립 패스 (원본 유지) */
+  .animate-handwriting-clip {
+    animation: handwritingClip 2.5s ease-in-out 0.5s both,
+               handShake 0.15s ease-in-out infinite;
+    letter-spacing: 0.05em;
+  }
+
+  /* 부드러운 버전 (떨림 없음) */
+  .animate-handwriting-smooth {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: handwritingReveal 3s ease-out 0.5s both;
+    letter-spacing: 0.05em;
   }
 
   /* 지연 효과 */
