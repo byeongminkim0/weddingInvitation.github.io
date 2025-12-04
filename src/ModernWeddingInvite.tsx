@@ -8,11 +8,11 @@ import { HandwritingText } from "./components/Handwritingtext";
 /** ===== 디자인 토큰 ===== */
 const MODERN = {
   // 기본 스타일
-  base: "text-gray-800",
+  base: "text-[#171717]",
   card: "bg-white backdrop-blur-sm",
   btn: "rounded-lg px-4 py-2 text-sm font-medium transition",
   primary: "bg-rose-500 text-white hover:bg-rose-600",
-  soft: "bg-white hover:bg-gray-50 text-gray-700 backdrop-blur-sm border border-gray-200",
+  soft: "bg-white hover:bg-gray-50 text-[#171717] backdrop-blur-sm border border-gray-200",
   pill: "rounded-full px-4 py-2 text-sm bg-white text-rose-700 backdrop-blur-sm border border-rose-100",
 
   // 텍스트 크기 공통 관리
@@ -106,6 +106,10 @@ export default function ModernWeddingInvite() {
   /** 갤러리 모달 상태 */
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
+  /** 갤러리 더보기 상태 */
+  const [showAllGallery, setShowAllGallery] = useState(false);
+  const INITIAL_GALLERY_COUNT = 9; // 처음에 보여줄 이미지 개수
+
   // 모바일 체크 함수
   const isMobile = () => window.innerWidth < 768;
 
@@ -163,7 +167,7 @@ export default function ModernWeddingInvite() {
   }, []);
 
   return (
-    <div className={`min-h-screen bg-gray-100 overflow-visible`}>
+    <div className={`min-h-screen bg-white overflow-visible`}>
       {/* 메인 컨테이너 - 모바일 폭으로 제한 */}
       <div className="max-w-lg mx-auto bg-white min-h-screen overflow-visible">
         <div className={`${MODERN.base} overflow-visible`}>
@@ -172,47 +176,48 @@ export default function ModernWeddingInvite() {
             <figure className="h-screen relative overflow-visible">
               {/* 메인 이미지 */}
               <SmartImage
-                src="/main.jpg"
+                src="/main.png"
                 alt="Wedding Photo"
                 className="w-full h-full object-cover"
                 aspect=""
               />
 
-              {/* 상단 텍스트 오버레이 */}
-              <div className="absolute top-0 left-0 right-0 pt-6 sm:pt-8 text-center z-10">
-                <p className={`${MODERN.text.date} font-medium drop-shadow-lg`}>
-                  {year}.{String(month + 1).padStart(2, '0')}.{String(date).padStart(2, '0')} 토요일 오후 2시
-                </p>
-                <p className={`${MODERN.text.hero} font-medium drop-shadow-lg mt-2`}>
-                  김{GROOM.name}♥김{BRIDE.name}
-                </p>
-              </div>
-
               {/* 하단 필기체 텍스트 - 손글씨 효과 */}
-              <div className="absolute bottom-10 left-0 right-0 flex justify-center z-10 px-4 text-center">
-                <HandwritingText
-                  text={`We're getting\nmarried!`}
-                  fontSize={100}
-                  fillColor="#111827"
-                  strokeWidth={0}          // 테두리 끔
-                  speed={0.5}              // 더 빠르게 (0.6~0.9 추천)
-                  brushWidthFactor={0.08}   // 더 얇게 (0.45~0.55)
-                  showPen={false}
-                  penRadius={2}
-                />
+              <div
+                className="absolute left-0 right-0 flex justify-center z-10 px-1"
+                style={{
+                  transform: "rotate(-14deg)",
+                  bottom: "420px",
+                }}
+              >
+                <div className="w-[400px] sm:w-[420px] text-left">
+                  <HandwritingText
+                    text={`We getting\nmarried!`}
+                    fontUrl="/fonts/Quentin.ttf"
+                    fontSize={64}
+                    lineHeight={79.78 / 64}
+                    align="right"
+                    color="#ffffff"
+
+                    duration={2.0}        // 전체 애니메이션 2초
+                    delay={0.5}           // 0.5초 후 시작
+
+                    shadow="0px 4px 5px rgba(0, 0, 0, 1)"
+                  />
+                </div>
               </div>
             </figure>
           </section>
 
-          {/* 초대 메시지 - 추가 패딩 */}
+          {/* 초대 메시지 */}
           <section ref={sections.greeting} className="max-w-2xl mx-auto px-3 sm:px-4 pt-8 pb-8 sm:pb-12">
             <Card className="p-6 sm:p-8 text-center">
               <EllipseBadge text="INVITATION" />
               <br />
-              <h1 className={`${MODERN.text.title} font-serif text-gray-900 mb-4 sm:mb-6`}>
+              <h1 className={`${MODERN.text.title} font-serif text-[#171717] mb-4 sm:mb-6`}>
                 소중한 분들을 모십니다
               </h1>
-              <div className={`space-y-3 sm:space-y-4 ${MODERN.text.body} text-gray-700 leading-relaxed`}>
+              <div className={`space-y-3 sm:space-y-4 ${MODERN.text.body} text-[#171717] leading-relaxed`}>
                 <p>
                   어릴 적 스치듯 지나가던 작은 인사가<br />
                   긴 시간의 여백을 건너<br />
@@ -258,7 +263,7 @@ export default function ModernWeddingInvite() {
             </p>
             <TimeSince
               startDate="2020-03-21T00:00:00+09:00"
-              className="font-hamchorong font-bold text-2xl md:text-3xl text-gray-800"
+              className="font-hamchorong font-bold text-2xl md:text-3xl text-[#171717]"
             />
           </div>
 
@@ -288,7 +293,7 @@ export default function ModernWeddingInvite() {
           <br />
           <section ref={sections.gallery} className="max-w-6xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
             <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 sm:gap-2">
-              {galleryImages.map((image, index) => (
+              {(showAllGallery ? galleryImages : galleryImages.slice(0, INITIAL_GALLERY_COUNT)).map((image, index) => (
                 <figure
                   key={index}
                   onClick={() => openModal(index)}
@@ -303,6 +308,18 @@ export default function ModernWeddingInvite() {
                 </figure>
               ))}
             </div>
+
+            {/* 더보기 / 접기 버튼 */}
+            {galleryImages.length > INITIAL_GALLERY_COUNT && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => setShowAllGallery(!showAllGallery)}
+                  className={`${MODERN.text.body} font-bold text-[#171717] flex items-center gap-1 hover:opacity-70 transition`}
+                >
+                  <span>{showAllGallery ? '▲ 접기' : '▼ 더보기'}</span>
+                </button>
+              </div>
+            )}
           </section>
 
           {/* 갤러리 모달 - 데스크톱에서만 표시 */}
@@ -366,7 +383,7 @@ export default function ModernWeddingInvite() {
               <div className="text-center mb-6 sm:mb-8">
                 <EllipseBadge text="WEDDING DAY" />
                 <br />
-                <p className={`${MODERN.text.body} text-gray-900 font-bold`}>
+                <p className={`${MODERN.text.body} text-[#171717] font-bold`}>
                   {year}년 {month + 1}월 {date}일 토요일 오후 2시<br />
                   {VENUE_NAME}
                 </p>
@@ -392,7 +409,7 @@ export default function ModernWeddingInvite() {
                             <span className={`
                                               inline-flex h-10 w-10 items-center justify-center rounded-full
                                               ${isWeddingDay ? "bg-rose-500 text-white font-bold" :
-                                isSunday ? "text-red-500 font-bold" : "text-gray-700"}
+                                isSunday ? "text-red-500 font-bold" : "text-[#171717]"}
                                             `}>
                               {cell.d}
                             </span>
@@ -408,7 +425,7 @@ export default function ModernWeddingInvite() {
 
           {/* 오시는 길 상세 (교통수단) */}
           <section ref={sections.directions} className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
-            <h2 className={`${MODERN.text.subtitle} font-semibold text-gray-900 mb-4 sm:mb-6 text-center`}>
+            <h2 className={`${MODERN.text.subtitle} font-semibold text-[#171717] mb-4 sm:mb-6 text-center`}>
               오시는 길
             </h2>
             {/* 지도 + 네비 버튼 (붙어있는 형태) */}
@@ -447,11 +464,11 @@ export default function ModernWeddingInvite() {
             <Card className="p-6 sm:p-8 text-center">
               <EllipseBadge text="INFORMATION" />
               <br />
-              <h2 className={`${MODERN.text.subtitle} font-semibold text-gray-900 mb-4 sm:mb-6 text-center`}>
+              <h2 className={`${MODERN.text.subtitle} font-semibold text-[#171717] mb-4 sm:mb-6 text-center`}>
                 마음 전하실 곳
               </h2>
 
-              <div className={`space-y-3 sm:space-y-4 ${MODERN.text.body} text-gray-700 leading-relaxed`}>
+              <div className={`space-y-3 sm:space-y-4 ${MODERN.text.body} text-[#171717] leading-relaxed`}>
                 <p>
                   직접 축하를 전해주시기 어려운 분들을 위해<br />
                   아래에 계좌 안내를 드립니다<br />
@@ -466,9 +483,9 @@ export default function ModernWeddingInvite() {
               </div>
             </Card>
 
-            <div className="grid sm:grid-cols-2 gap-2">
-              <AccountBoxSelect accounts={ACCOUNTS_GROOM} role="신랑측 계좌" />
-              <AccountBoxSelect accounts={ACCOUNTS_BRIDE} role="신부측 계좌" />
+            <div className="grid sm:grid-cols-2 gap-2 mt-4">
+              <AccountAccordion accounts={ACCOUNTS_GROOM} role="신랑측" bgColor="bg-sky-50" textColor="text-sky-700" />
+              <AccountAccordion accounts={ACCOUNTS_BRIDE} role="신부측" bgColor="bg-rose-50" textColor="text-rose-700" />
             </div>
           </section>
 
@@ -513,7 +530,7 @@ function ProfileCard({ person, role }: ProfileCardProps) {
             {person.name === "병민" ? <img src="/flower.svg" alt="heart" className="inline w-4 h-4 mx-1" /> : ''}{person.parents.father} · {person.parents.mother} 의 {person.relation}
           </p>
           <p className={`inline-block ${MODERN.text.small} text-gray-500`}>{role}</p>
-          <p className={`inline-block ${MODERN.text.bodyLarge} font-semibold text-gray-900 ml-2`}>{person.name}</p>
+          <p className={`inline-block ${MODERN.text.bodyLarge} font-semibold text-[#171717] ml-2`}>{person.name}</p>
         </div>
         <a
           href={`tel:${person.phone}`}
@@ -557,7 +574,7 @@ const EllipseBadge: React.FC<BadgeProps> = ({ text }) => {
 function InfoBox({ title, info }: { icon: string; title: string; info: string }) {
   return (
     <div className="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl text-left">
-      <p className={`${MODERN.text.body} font-bold text-gray-900 mb-1`}>{title}</p>
+      <p className={`${MODERN.text.body} font-bold text-[#171717] mb-1`}>{title}</p>
       <div className={`${MODERN.text.small} text-gray-600 whitespace-pre-line`}>
         {info.split('\\n').map((line, index) => (
           <span key={index}>
@@ -570,24 +587,77 @@ function InfoBox({ title, info }: { icon: string; title: string; info: string })
   );
 }
 
-function AccountBoxSelect({ accounts }: { accounts: Array<{ bank: string; num: string; name: string }>; role: string }) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+function AccountAccordion({ accounts, role, bgColor = "bg-rose-50", textColor = "text-rose-700" }: {
+  accounts: Array<{ bank: string; num: string; name: string }>;
+  role: string;
+  bgColor?: string;
+  textColor?: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  const copyToClipboard = async (text: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch {
+      // 복사 실패 시 fallback
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    }
+  };
 
   return (
-    <Card className="">
-      {/* 드롭다운 */}
-      <select
-        value={selectedIndex}
-        onChange={(e) => setSelectedIndex(Number(e.target.value))}
-        className={`w-full mb-3 px-3 py-3 ${MODERN.text.small} border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white`}
+    <div className="overflow-hidden rounded-lg">
+      {/* 아코디언 헤더 버튼 */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full px-4 py-3 ${bgColor} ${textColor} ${MODERN.text.body} font-medium flex items-center justify-between transition-all hover:opacity-80`}
       >
-        {accounts.map((account, index) => (
-          <option key={index} value={index}>
-            {account.name} ({account.bank})
-          </option>
-        ))}
-      </select>
-    </Card>
+        <span>{role}</span>
+        <svg
+          className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* 아코디언 콘텐츠 */}
+      <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="bg-white border-x border-b border-gray-100">
+          {accounts.map((account, index) => (
+            <div key={index} className="px-4 py-3 border-b border-gray-50 last:border-b-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`${MODERN.text.small} text-gray-500`}>{account.bank}</p>
+                  <p className={`${MODERN.text.body} text-[#171717] font-medium`}>{account.num}</p>
+                  <p className={`${MODERN.text.small} text-gray-600`}>{account.name}</p>
+                </div>
+                <button
+                  onClick={() => copyToClipboard(account.num, index)}
+                  className={`px-3 py-1.5 ${MODERN.text.small} rounded-md border transition-all ${copiedIndex === index
+                    ? 'bg-green-50 border-green-300 text-green-600'
+                    : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                    }`}
+                >
+                  {copiedIndex === index ? '복사됨' : '복사'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
