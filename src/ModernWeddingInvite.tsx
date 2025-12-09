@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
-import { Calendar as MapPin, Phone, User, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Calendar as MapPin, User, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { TimeSince } from "./components/TimeSince";
 import { Guestbook } from "./components/Guestbook";
 import { GuestGallery } from "./components/GuestGallery";
@@ -19,11 +19,11 @@ const MODERN = {
   text: {
     // 제목 크기
     hero: "text-3xl sm:text-5xl",           // 메인 히어로 타이틀
-    title: "text-2xl sm:text-3xl",          // 주요 섹션 제목
+    title: "text-center justify-start text-neutral-900 text-2xl font-normal font-['Gabia_Gosran']",          // 주요 섹션 제목
     subtitle: "text-xl sm:text-2xl",        // 부제목
 
     // 본문 크기
-    body: "text-sm sm:text-base",           // 기본 본문
+    body: "text-center justify-start text-neutral-900 text-base font-normal font-['Gabia_Gosran'] leading-6",           // 기본 본문
     bodyLarge: "text-base sm:text-lg",      // 큰 본문
 
     // 작은 텍스트
@@ -169,7 +169,7 @@ export default function ModernWeddingInvite() {
   return (
     <div className={`min-h-screen bg-white overflow-visible`}>
       {/* 메인 컨테이너 - 모바일 폭으로 제한 */}
-      <div className="max-w-lg mx-auto bg-white min-h-screen overflow-visible">
+      <div className="overflow-visible">
         <div className={`${MODERN.base} overflow-visible`}>
           {/* Hero - 메인 웨딩 사진 */}
           <section ref={sections.hero} className="overflow-visible mb-16 sm:mb-20">
@@ -210,14 +210,15 @@ export default function ModernWeddingInvite() {
           </section>
 
           {/* 초대 메시지 */}
-          <section ref={sections.greeting} className="max-w-2xl mx-auto px-3 sm:px-4 pt-8 pb-8 sm:pb-12">
-            <Card className="p-6 sm:p-8 text-center">
-              <EllipseBadge text="INVITATION" />
-              <br />
-              <h1 className={`${MODERN.text.title} font-serif text-[#171717] mb-4 sm:mb-6`}>
-                소중한 분들을 모십니다
-              </h1>
-              <div className={`space-y-3 sm:space-y-4 ${MODERN.text.body} text-[#171717] leading-relaxed`}>
+          <section ref={sections.greeting}>
+            <EllipseBadge text="INVITATION" />
+            <br />
+            <br />
+            <h1 className={`${MODERN.text.title} font-serif text-[#171717] mb-4 sm:mb-6`}>
+              소중한 분들을 모십니다
+            </h1>
+            <br />
+            {/* <div className={`space-y-3 sm:space-y-4 ${MODERN.text.body} text-[#171717] leading-relaxed`}>
                 <p>
                   어릴 적 스치듯 지나가던 작은 인사가<br />
                   긴 시간의 여백을 건너<br />
@@ -232,20 +233,19 @@ export default function ModernWeddingInvite() {
                   따뜻한 축복을 보태 주신다면<br />
                   저희에게 더없는 기쁨과 큰 힘이 될 것입니다.
                 </p>
-              </div>
-            </Card>
+              </div> */}
+            <div className="text-center justify-start text-neutral-900 text-base font-normal font-['Gabia_Gosran'] leading-6">어릴 적 지나가던 작은 인사가<br />긴 시간의 여백을 건너<br />서로의 마음으로 단단히 자리하였습니다.<br />이제 저희 두 사람이<br />담담히 한 길을 약속하고자 합니다.<br /><br />그동안 보내주신<br />응원과 정을 깊이 기억하며,<br />이날 오셔서 기꺼이 내어주신 귀한 발걸음으로<br />따뜻한 축복을 보태 주신다면<br />저희에게 더없는 기쁨과 큰 힘이 될 것입니다.</div>
           </section>
 
           {/* 신랑신부 정보 */}
-          <section ref={sections.profiles} className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12 relative">
-            <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6">
+          <section ref={sections.profiles} className="relative mt-20">
+            <div className="grid grid-cols-2 gap-2">
               <ProfileCard person={GROOM} role="신랑" />
               <ProfileCard person={BRIDE} role="신부" />
             </div>
-
             {/* 중앙 하트 */}
-            <div className="absolute top-6 sm:top-9 left-1/2 transform -translate-x-1/2 z-10">
-              <div className="p-16 sm:p-19">
+            <div className="w-16 h-16 absolute top-29 left-1/2 transform -translate-x-1/2 z-10">
+              <div className="">
                 <img
                   src="/heart.svg"
                   alt="heart"
@@ -255,20 +255,27 @@ export default function ModernWeddingInvite() {
             </div>
           </section>
 
-          <EllipseBadge text="OUR TIME" />
-          <br />
-          <div className="text-center">
-            <p className={`${MODERN.text.bodyLarge} text-black-600 mb-2`}>
-              {GROOM.name}과 {BRIDE.name}이 함께한지
-            </p>
-            <TimeSince
-              startDate="2020-03-21T00:00:00+09:00"
-              className="font-hamchorong font-bold text-2xl md:text-3xl text-[#171717]"
-            />
+          <div className="mt-18">
+            <EllipseBadge text="OUR TIME" />
+            <br />
+            <div className="text-center">
+              <p className={`${MODERN.text.bodyLarge} text-black-600 mb-2`}>
+                {GROOM.name}과 {BRIDE.name}이 함께한지
+              </p>
+              <div className="flex items-center justify-center">
+                <div className="text-zinc-300 text-5xl font-normal font-['Ghanachocolate'] -mr-3">&ldquo;</div>
+                <TimeSince
+                  startDate="2020-03-21T00:00:00+09:00"
+                  className="font-hamchorong font-bold text-2xl md:text-3xl text-[#171717]"
+                />
+                <div className="text-zinc-300 text-5xl font-normal font-['Ghanachocolate'] -ml-3">&rdquo;</div>
+              </div>
+            </div>
           </div>
 
           {/* 스토리 섹션 */}
-          <section ref={sections.story} className="pb-8 sm:pb-12">
+          <section ref={sections.story} className="pt-15">
+            <div className="text-center justify-start text-blue-500 text-5xl font-normal font-['Cafe24_Oneprettynight']">저희 결혼해요!</div>
             <div className="w-full">
               <img
                 src="/story1.png"
@@ -505,7 +512,7 @@ export default function ModernWeddingInvite() {
 }
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`${MODERN.card} rounded-2xl ${className}`}>{children}</div>;
+  return <div className={`${MODERN.card} ${className}`}>{children}</div>;
 }
 
 interface ProfileCardProps {
@@ -515,32 +522,25 @@ interface ProfileCardProps {
 
 function ProfileCard({ person, role }: ProfileCardProps) {
   return (
-    <Card className="p-3 sm:p-6">
-      <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4">
-        <figure className="w-35 h-35 sm:w-32 md:w-45 sm:h-32 md:h-45 rounded-full overflow-hidden">
-          <SmartImage
-            src={person.photo}
-            alt={person.name}
-            className="w-full h-full object-cover"
-            aspect="1/1"
-          />
-        </figure>
-        <div>
-          <p className={`${MODERN.text.small} text-gray-600 mt-1.5 sm:mt-2`}>
-            {person.name === "병민" ? <img src="/flower.svg" alt="heart" className="inline w-4 h-4 mx-1" /> : ''}{person.parents.father} · {person.parents.mother} 의 {person.relation}
-          </p>
-          <p className={`inline-block ${MODERN.text.small} text-gray-500`}>{role}</p>
-          <p className={`inline-block ${MODERN.text.bodyLarge} font-semibold text-[#171717] ml-2`}>{person.name}</p>
+    <div className="flex flex-col items-center text-center space-y-2">
+      <figure className="w-42 h-42 rounded-full overflow-hidden">
+        <SmartImage
+          src={person.photo}
+          alt={person.name}
+          className="w-full h-full object-cover"
+          aspect="1/1"
+        />
+      </figure>
+      <div>
+        <p className={`${MODERN.text.small} text-center justify-start text-neutral-900 text-base font-normal font-['Gabia_Gosran'] leading-6 mt-1.5`}>
+          {person.name === "병민" ? <img src="/flower.svg" alt="heart" className="inline w-4 h-4 mx-1" /> : ''}{person.parents.father} · {person.parents.mother} 의 {person.relation}
+        </p>
+        <div className="flex items-center justify-center gap-1">
+          <p className={`${MODERN.text.small} text-neutral-900 text-base font-normal font-['Gabia_Gosran']`}>{role}</p>
+          <p className={`${MODERN.text.bodyLarge} text-neutral-900 text-xl font-normal font-['Gabia_Gosran']`}>{person.name}</p>
         </div>
-        <a
-          href={`tel:${person.phone}`}
-          className={`${MODERN.btn} ${MODERN.soft} inline-flex items-center gap-2 ${MODERN.text.small}`}
-        >
-          <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-          연락하기
-        </a>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -552,20 +552,22 @@ interface BadgeProps {
 const EllipseBadge: React.FC<BadgeProps> = ({ text }) => {
   return (
     <div className="flex justify-center">
-      <svg width="180" height="50" viewBox="0 0 180 50">
-        <ellipse cx="90" cy="25" rx="70" ry="16" fill="black" />
+      <svg width="124" height="30" viewBox="0 0 124 30">
+        <ellipse cx="62" cy="15" rx="62" ry="15" fill="black" />
         <text
           x="50%"
-          y="52%"
+          y="50%"
           dominantBaseline="middle"
           textAnchor="middle"
           fill="white"
-          fontSize="13"
-          fontWeight="520"
-          letterSpacing="2"
+          fontSize="14"
+          fontWeight="700"
+          fontFamily="SUITE"
+        // letterSpacing="2"
         >
           {text}
         </text>
+        {/* <div style={{textAlign: 'center', color: 'white', fontSize: 14, fontFamily: 'SUITE', fontWeight: '700', wordWrap: 'break-word'}}>INVITAION</div> */}
       </svg>
     </div>
   );
