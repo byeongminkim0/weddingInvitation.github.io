@@ -111,5 +111,5 @@ export default function CountUp({
     return () => unsubscribe();
   }, [springValue, formatValue]);
 
-  return <span className={className} style={{ color: '#ff0000' }} ref={ref} />;
+  return <span className={className} style={{ color: '#171717' }} ref={ref} />;
 }

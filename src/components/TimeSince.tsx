@@ -110,9 +110,9 @@ export const TimeSince: React.FC<TimeSinceProps> = ({ startDate, className = '' 
         className="count-up-text"
       />
       일{' '}
-      <span style={{ color: '#ff0000' }}>{timeData.hours}</span>시간{' '}
-      <span style={{ color: '#ff0000' }}>{timeData.minutes}</span>분{' '}
-      <span style={{ color: '#ff0000' }}>{timeData.seconds}</span>초
+      <span style={{ color: '#171717' }}>{timeData.hours}</span>시간{' '}
+      <span style={{ color: '#171717' }}>{timeData.minutes}</span>분{' '}
+      <span style={{ color: '#171717' }}>{timeData.seconds}</span>초
     </p>
   );
 };
