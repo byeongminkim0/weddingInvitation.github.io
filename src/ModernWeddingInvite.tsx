@@ -108,7 +108,18 @@ export default function ModernWeddingInvite() {
 
   /** 갤러리 더보기 상태 */
   const [showAllGallery, setShowAllGallery] = useState(false);
-  const INITIAL_GALLERY_COUNT = 12; // 처음에 보여줄 이미지 개수
+  const [initialGalleryCount, setInitialGalleryCount] = useState(12);
+
+  // 화면 크기에 따라 초기 갤러리 개수 조정
+  useEffect(() => {
+    const updateGalleryCount = () => {
+      setInitialGalleryCount(window.innerWidth >= 1024 ? 16 : 12);
+    };
+    
+    updateGalleryCount();
+    window.addEventListener('resize', updateGalleryCount);
+    return () => window.removeEventListener('resize', updateGalleryCount);
+  }, []);
 
   // 모바일 체크 함수
   const isMobile = () => window.innerWidth < 768;
@@ -167,12 +178,12 @@ export default function ModernWeddingInvite() {
   }, []);
 
   return (
-    <div className={`min-h-screen bg-white overflow-visible`}>
-      {/* 메인 컨테이너 - 모바일 폭으로 제한 */}
-      <div className="overflow-visible">
+    <div className="min-h-screen bg-white">
+      {/* 메인 컨테이너 - 모바일 폭으로 제한하고 중앙 정렬 */}
+      <div className="max-w-[430px] mx-auto overflow-visible">
         <div className={`${MODERN.base} overflow-visible`}>
           {/* Hero - 메인 웨딩 사진 */}
-          <section ref={sections.hero} className="overflow-visible mb-16 sm:mb-20">
+          <section ref={sections.hero} className="overflow-visible mb-16">
             <figure className="h-screen relative overflow-visible">
               {/* 메인 이미지 */}
               <SmartImage
@@ -190,7 +201,7 @@ export default function ModernWeddingInvite() {
                   bottom: "420px",
                 }}
               >
-                <div className="w-[400px] sm:w-[420px] text-left">
+                <div className="w-[400px] text-left">
                   <HandwritingText
                     text={`We getting\nmarried!`}
                     fontUrl="/fonts/Quentin.ttf"
@@ -210,33 +221,17 @@ export default function ModernWeddingInvite() {
           </section>
 
           {/* 초대 메시지 */}
-          <section ref={sections.greeting}>
+          <section ref={sections.greeting} className="px-4">
             <EllipseBadge text="INVITATION" />
-            <h1 className={`${MODERN.text.title} font-serif text-[#171717] mb-4 sm:mb-6`}>
+            <h1 className={`${MODERN.text.title} font-serif text-[#171717] mb-4`}>
               소중한 분들을 모십니다
             </h1>
             <br />
-            {/* <div className={`space-y-3 sm:space-y-4 ${MODERN.text.body} text-[#171717] leading-relaxed`}>
-                <p>
-                  어릴 적 스치듯 지나가던 작은 인사가<br />
-                  긴 시간의 여백을 건너<br />
-                  서로의 마음으로 단단히 자리하였습니다.<br />
-                  이제 저희 두 사람이<br />
-                  담담히 한 길을 약속하고자 합니다.
-                </p>
-                <p>
-                  그동안 보내 주신 <br />
-                  응원과 정을 깊이 기억하며,<br />
-                  이날 오셔서 기꺼이 내어 주신 귀한 걸음으로<br />
-                  따뜻한 축복을 보태 주신다면<br />
-                  저희에게 더없는 기쁨과 큰 힘이 될 것입니다.
-                </p>
-              </div> */}
             <div className="text-center justify-start text-neutral-900 text-base font-normal font-['Gabia_Gosran'] leading-6">어릴 적 지나가던 작은 인사가<br />긴 시간의 여백을 건너<br />서로의 마음으로 단단히 자리하였습니다.<br />이제 저희 두 사람이<br />담담히 한 길을 약속하고자 합니다.<br /><br />그동안 보내주신<br />응원과 정을 깊이 기억하며,<br />이날 오셔서 기꺼이 내어주신 귀한 발걸음으로<br />따뜻한 축복을 보태 주신다면<br />저희에게 더없는 기쁨과 큰 힘이 될 것입니다.</div>
           </section>
 
           {/* 신랑신부 정보 */}
-          <section ref={sections.profiles} className="relative mt-20">
+          <section ref={sections.profiles} className="relative mt-20 px-4">
             <div className="grid grid-cols-2 gap-2">
               <ProfileCard person={GROOM} role="신랑" />
               <ProfileCard person={BRIDE} role="신부" />
@@ -253,7 +248,7 @@ export default function ModernWeddingInvite() {
             </div>
           </section>
 
-          <div className="mt-18">
+          <div className="mt-18 px-4">
             <EllipseBadge text="OUR TIME" />
             <div className="text-center">
               <p className={`${MODERN.text.bodyLarge} text-black-600 mb-2 font-['Gabia_Gosran']`}>
@@ -274,11 +269,6 @@ export default function ModernWeddingInvite() {
           <section ref={sections.story} className="pt-15">
             <div className="text-center justify-start text-blue-500 text-5xl font-normal font-['Gabia_Gosran']">저희 결혼해요!</div>
             <div className="w-full">
-              {/* <img
-                src="/story1.png"
-                alt="Our Story"
-                className="w-full h-auto"
-              /> */}
               <br />
               <br />
               <img
@@ -295,10 +285,10 @@ export default function ModernWeddingInvite() {
           </section>
 
           {/* 갤러리 */}
-          <section ref={sections.gallery} className="max-w-6xl mx-auto px-3 pt-15">
+          <section ref={sections.gallery} className="px-3 pt-15">
             <EllipseBadge text="GALLERY" />
-            <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
-              {(showAllGallery ? galleryImages : galleryImages.slice(0, INITIAL_GALLERY_COUNT)).map((image, index) => (
+            <div className="grid grid-cols-3 lg:grid-cols-4 gap-1.5">
+              {(showAllGallery ? galleryImages : galleryImages.slice(0, initialGalleryCount)).map((image, index) => (
                 <figure
                   key={index}
                   onClick={() => openModal(index)}
@@ -315,7 +305,7 @@ export default function ModernWeddingInvite() {
             </div>
 
             {/* 더보기 / 접기 버튼 */}
-            {galleryImages.length > INITIAL_GALLERY_COUNT && (
+            {galleryImages.length > initialGalleryCount && (
               <div className="flex justify-center mt-6">
                 <button
                   onClick={() => setShowAllGallery(!showAllGallery)}
@@ -330,13 +320,13 @@ export default function ModernWeddingInvite() {
           {/* 갤러리 모달 - 데스크톱에서만 표시 */}
           {selectedImageIndex !== null && !isMobile() && (
             <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-70 backdrop-blur-sm"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
               onClick={closeModal}
             >
               {/* 닫기 버튼 */}
               <button
                 onClick={closeModal}
-                className="absolute top-4 right-4 text-black hover:text-gray-300 transition z-50"
+                className="absolute top-4 right-4 text-white hover:text-gray-300 transition z-50"
               >
                 <X className="w-8 h-8" />
               </button>
@@ -347,7 +337,7 @@ export default function ModernWeddingInvite() {
                   e.stopPropagation();
                   goToPrevious();
                 }}
-                className="absolute left-4 text-black hover:text-gray-300 transition z-50"
+                className="absolute left-4 text-white hover:text-gray-300 transition z-50"
               >
                 <ChevronLeft className="w-10 h-10" />
               </button>
@@ -364,7 +354,7 @@ export default function ModernWeddingInvite() {
                 />
 
                 {/* 이미지 카운터 */}
-                <div className={`absolute left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-2 rounded-full ${MODERN.text.small}`}>
+                <div className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-2 rounded-full ${MODERN.text.small}`}>
                   {selectedImageIndex + 1} / {galleryImages.length}
                 </div>
               </div>
@@ -375,16 +365,16 @@ export default function ModernWeddingInvite() {
                   e.stopPropagation();
                   goToNext();
                 }}
-                className="absolute right-4 text-black hover:text-gray-300 transition z-50"
+                className="absolute right-4 text-white hover:text-gray-300 transition z-50"
               >
                 <ChevronRight className="w-10 h-10" />
               </button>
             </div>
           )}
 
-          <section ref={sections.calendar} className="max-w-3xl mx-auto px-3 pt-15">
+          <section ref={sections.calendar} className="px-3 pt-15">
             <Card className="p-4">
-              <div className="text-center mb-6 sm:mb-8">
+              <div className="text-center mb-6">
                 <EllipseBadge text="WEDDING DAY" />
                 <p className={`${MODERN.text.body} text-[#171717]`}>
                   {year}년 {month + 1}월 {date}일 토요일 오후 2시<br />
@@ -393,7 +383,7 @@ export default function ModernWeddingInvite() {
                 <div className="text-center justify-start text-neutral-900 text-2xl font-normal font-['Gabia_Gosran'] leading-10 mt-3"><img src="/noto_ring.svg" alt="ring" className="inline relative overflow-hidden w-8 h-8" />D-200</div>
               </div>
               {/* 캘린더 */}
-              <div className="max-w-md mx-auto">
+              <div className="mx-auto">
                 <div className="bg-white backdrop-blur-sm rounded-b-2xl overflow-hidden">
                   <div className="grid grid-cols-7 text-center py-2">
                     {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
@@ -428,7 +418,7 @@ export default function ModernWeddingInvite() {
           </section>
 
           {/* 오시는 길 상세 (교통수단) */}
-          <section ref={sections.directions} className="max-w-5xl mx-auto px-3 mt-8">
+          <section ref={sections.directions} className="px-3 mt-8">
             <h2 className={`${MODERN.text.body} text-[#171717] text-center`}>
               오시는 길
             </h2>
@@ -437,7 +427,7 @@ export default function ModernWeddingInvite() {
             <div className="mb-4 overflow-hidden shadow-lg">
               {/* 지도 */}
               <div className="bg-linear-to-br from-gray-100 to-gray-50 h-64 flex flex-col items-center justify-center">
-                <MapPin className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
+                <MapPin className="h-10 w-10 text-gray-400" />
                 <span className={`ml-2 ${MODERN.text.body} text-gray-500`}>지도 API 연동 영역</span>
               </div>
 
@@ -454,7 +444,7 @@ export default function ModernWeddingInvite() {
                 </a>
               </div>
             </div>
-            <Card className="p-4 sm:p-6">
+            <Card className="p-4">
               {/* 교통 정보 */}
               <div className={`grid grid-cols-1 gap-3 ${MODERN.text.small}`}>
                 <InfoBox icon="🚗" title="자가용" info="[내비게이션] 제이오스티엘 입력\n[주차장] 구로기계공구상가 B,D 블록 5,6번 게이트 이용" />
@@ -466,7 +456,7 @@ export default function ModernWeddingInvite() {
           </section>
 
           {/* 마음 전하실 곳 */}
-          <section ref={sections.account} className="max-w-3xl mx-auto px-3 mt-10">
+          <section ref={sections.account} className="px-3 mt-10">
             <Card className="p-6 text-center">
               <EllipseBadge text="INFORMATION" />
               <div className="text-center justify-start text-neutral-900 text-2xl font-normal font-['Gabia_Gosran']">마음 전하실 곳</div>
@@ -494,19 +484,22 @@ export default function ModernWeddingInvite() {
 
             </Card>
 
-            <div className="grid sm:grid-cols-2 gap-2 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
               <AccountAccordion accounts={ACCOUNTS_GROOM} role="신랑 측" bgColor="bg-sky-100" textColor="text-neutral-900" />
               <AccountAccordion accounts={ACCOUNTS_BRIDE} role="신부 측" bgColor="bg-rose-50" textColor="text-neutral-900" />
             </div>
           </section>
 
           {/* 방명록 섹션 */}
-          <section ref={sections.guestbook} className="max-w-3xl mx-auto px-3 mt-15 mb-15">
+          <section ref={sections.guestbook} className="px-3 mt-15 mb-15">
             <Guestbook />
           </section>
 
+          <br />
+          <br />
+
           {/* 하객 갤러리 섹션 */}
-          {/* <section ref={sections.guestGallery} className="max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12">
+          {/* <section ref={sections.guestGallery} className="px-3 pb-8">
             <GuestGallery />
           </section> */}
         </div>
@@ -567,11 +560,9 @@ export const EllipseBadge: React.FC<BadgeProps> = ({ text }) => {
           fontSize="14"
           fontWeight="700"
           fontFamily="SUITE"
-        // letterSpacing="2"
         >
           {text}
         </text>
-        {/* <div style={{textAlign: 'center', color: 'white', fontSize: 14, fontFamily: 'SUITE', fontWeight: '700', wordWrap: 'break-word'}}>INVITAION</div> */}
       </svg>
     </div>
   );
@@ -689,7 +680,7 @@ function SmartImage({
         style={{ aspectRatio: aspect }}
       >
         <div className="text-center text-gray-400">
-          <User className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2" />
+          <User className="h-8 w-8 mx-auto mb-2" />
           <p className={MODERN.text.small}>이미지 준비중</p>
         </div>
       </div>
