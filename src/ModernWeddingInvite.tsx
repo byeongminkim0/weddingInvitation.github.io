@@ -178,7 +178,7 @@ export default function ModernWeddingInvite() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* 메인 컨테이너 - 모바일 폭으로 제한하고 중앙 정렬 */}
       <div className="max-w-[430px] mx-auto overflow-visible">
         <div className={`${MODERN.base} overflow-visible`}>
@@ -284,37 +284,39 @@ export default function ModernWeddingInvite() {
             </div>
           </section>
 
-          {/* 갤러리 */}
-          <section ref={sections.gallery} className="px-3 pt-15">
-            <EllipseBadge text="GALLERY" />
-            <div className="grid grid-cols-3 lg:grid-cols-4 gap-1.5">
-              {(showAllGallery ? galleryImages : galleryImages.slice(0, initialGalleryCount)).map((image, index) => (
-                <figure
-                  key={index}
-                  onClick={() => openModal(index)}
-                  className="aspect-square overflow-hidden hover:opacity-80 transition cursor-pointer"
-                >
-                  <SmartImage
-                    src={image}
-                    alt={`Gallery ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    aspect="1/1"
-                  />
-                </figure>
-              ))}
-            </div>
-
-            {/* 더보기 / 접기 버튼 */}
-            {galleryImages.length > initialGalleryCount && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => setShowAllGallery(!showAllGallery)}
-                  className={`${MODERN.text.body} font-bold text-[#171717] flex items-center gap-1 hover:opacity-70 transition`}
-                >
-                  <span>{showAllGallery ? '▲ 접기' : '▼ 더보기'}</span>
-                </button>
+          {/* 갤러리 - 더 넓은 레이아웃 */}
+          <section ref={sections.gallery} className="pt-15 w-screen relative left-1/2 -translate-x-1/2">
+            <div className="max-w-[890px] mx-auto px-3">
+              <EllipseBadge text="GALLERY" />
+              <div className="grid grid-cols-3 lg:grid-cols-4 gap-1.5">
+                {(showAllGallery ? galleryImages : galleryImages.slice(0, initialGalleryCount)).map((image, index) => (
+                  <figure
+                    key={index}
+                    onClick={() => openModal(index)}
+                    className="aspect-square overflow-hidden hover:opacity-80 transition cursor-pointer"
+                  >
+                    <SmartImage
+                      src={image}
+                      alt={`Gallery ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      aspect="1/1"
+                    />
+                  </figure>
+                ))}
               </div>
-            )}
+
+              {/* 더보기 / 접기 버튼 */}
+              {galleryImages.length > initialGalleryCount && (
+                <div className="flex justify-center mt-6">
+                  <button
+                    onClick={() => setShowAllGallery(!showAllGallery)}
+                    className={`${MODERN.text.body} font-bold text-[#171717] flex items-center gap-1 hover:opacity-70 transition`}
+                  >
+                    <span>{showAllGallery ? '▲ 접기' : '▼ 더보기'}</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </section>
 
           {/* 갤러리 모달 - 데스크톱에서만 표시 */}
@@ -484,7 +486,7 @@ export default function ModernWeddingInvite() {
 
             </Card>
 
-            <div className="grid grid-cols-1 gap-2 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
               <AccountAccordion accounts={ACCOUNTS_GROOM} role="신랑 측" bgColor="bg-sky-100" textColor="text-neutral-900" />
               <AccountAccordion accounts={ACCOUNTS_BRIDE} role="신부 측" bgColor="bg-rose-50" textColor="text-neutral-900" />
             </div>
@@ -554,6 +556,7 @@ export const EllipseBadge: React.FC<BadgeProps> = ({ text }) => {
         <text
           x="50%"
           y="50%"
+          dy="0.1em"
           dominantBaseline="middle"
           textAnchor="middle"
           fill="white"

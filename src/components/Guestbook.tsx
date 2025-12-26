@@ -270,40 +270,40 @@ export function Guestbook() {
         <>
           <div className="space-y-3 sm:space-y-4">
             {visibleMessages.map((msg) => (
-              <Card key={msg.id} className="p-5 sm:p-6 hover:shadow-md transition">
+              <Card key={msg.id} className="pl-3 pt-3 pr-3 pb-2 hover:shadow-md transition">
                 <div className="flex items-start gap-3 sm:gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
+                  {/* <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-base sm:text-lg">{msg.name.charAt(0)}</span>
-                  </div>
+                  </div> */}
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="font-semibold text-gray-900 text-sm sm:text-base">{msg.name}</p>
-
                       <div className="flex items-center gap-2">
-                        <p className="text-xs text-gray-500">{formatDate(msg.createdAt)}</p>
-                        <div className="flex gap-1">
-                          <button
-                            onClick={() => openEditModal(msg)}
-                            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition"
-                            title="수정"
-                          >
-                            <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                          </button>
-                          <button
-                            onClick={() => openDeleteModal(msg)}
-                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition"
-                            title="삭제"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                          </button>
-                        </div>
+                        <p className="font-semibold text-blue-500 text-base font-['Pretendard'] leading-6">{msg.name}</p>
+                        <p className="text-neutral-400 text-xs font-normal font-['Pretendard'] leading-4">{formatDate(msg.createdAt)}</p>
                       </div>
                     </div>
-
                     <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm sm:text-base break-words">
                       {msg.message}
                     </p>
+                    <div className="flex justify-end items-center gap-2">
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => openEditModal(msg)}
+                          className="p-1.5 text-black  hover:text-blue-600 rounded transition"
+                          title="수정"
+                        >
+                          <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </button>
+                        <button
+                          onClick={() => openDeleteModal(msg)}
+                          className="p-1.5 text-black hover:text-blue-600 rounded transition"
+                          title="삭제"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -370,8 +370,7 @@ export function Guestbook() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* 헤더 */}
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">방명록 작성</h3>
+            <div className="flex items-center justify-end mb-4">
               <button
                 onClick={() => setShowComposer(false)}
                 className="text-gray-400 hover:text-gray-600 transition"
@@ -382,12 +381,16 @@ export function Guestbook() {
             </div>
 
             {/* 폼 */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-2">
+              <div className="text-center mb-6 sm:mb-8">
+                <EllipseBadge text="THANK U" />
+                <div className="text-center text-neutral-900 text-2xl font-normal font-['Gabia_Gosran']">방명록</div>
+              </div>
+              <div className="text-center justify-start text-neutral-900 text-lg font-normal font-['Gabia_Gosran']">방명록을 작성해주세요</div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">이름</label>
                 <input
                   type="text"
-                  placeholder="홍길동"
+                  placeholder="이름"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   maxLength={20}
@@ -395,11 +398,9 @@ export function Guestbook() {
                   disabled={submitting}
                 />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">축하 메시지</label>
                 <textarea
-                  placeholder="결혼을 축하합니다!"
+                  placeholder="내용을 입력해주세요"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   maxLength={500}
@@ -407,16 +408,12 @@ export function Guestbook() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-none text-sm"
                   disabled={submitting}
                 />
-                <div className="text-right text-xs text-gray-500 mt-1">{message.length}/500</div>
+                {/* <div className="text-right text-xs text-gray-500 mt-1">{message.length}/500</div> */}
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  비밀번호 <span className="text-xs text-gray-500">(수정/삭제 시 필요)</span>
-                </label>
                 <input
                   type="password"
-                  placeholder="4자 이상"
+                  placeholder="비밀번호"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   maxLength={20}
@@ -426,21 +423,21 @@ export function Guestbook() {
               </div>
 
               {/* 버튼 */}
-              <div className="flex gap-2 pt-1">
-                <button
+              <div className="flex justify-end">
+                {/* <button
                   type="button"
                   onClick={() => setShowComposer(false)}
                   className="flex-1 px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 transition text-sm font-medium"
                   disabled={submitting}
                 >
                   취소
-                </button>
+                </button> */}
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                  className="w-28 h-6 bg-white rounded shadow-[2px_2px_5.400000095367432px_0px_rgba(0,0,0,0.27)] transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                 >
-                  {submitting ? '전송 중...' : '등록'}
+                  {submitting ? '등록 중...' : '등록하기'}
                 </button>
               </div>
             </form>
