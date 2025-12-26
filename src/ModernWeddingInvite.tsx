@@ -110,6 +110,27 @@ export default function ModernWeddingInvite() {
   const [showAllGallery, setShowAllGallery] = useState(false);
   const [initialGalleryCount, setInitialGalleryCount] = useState(12);
 
+  // Gabia Gosran 폰트 직접 로드
+  useEffect(() => {
+    const loadFont = async () => {
+      try {
+        const font = new FontFace(
+          'Gabia_Gosran',
+          'url(/fonts/GabiaGosran.otf)',
+          { weight: '400', style: 'normal' }
+        );
+        
+        const loadedFont = await font.load();
+        document.fonts.add(loadedFont);
+        console.log('Gabia_Gosran 폰트 로드 완료');
+      } catch (error) {
+        console.error('Gabia_Gosran 폰트 로드 실패:', error);
+      }
+    };
+    
+    loadFont();
+  }, []);
+
   // 화면 크기에 따라 초기 갤러리 개수 조정
   useEffect(() => {
     const updateGalleryCount = () => {
@@ -561,7 +582,7 @@ export const EllipseBadge: React.FC<BadgeProps> = ({ text }) => {
           textAnchor="middle"
           fill="white"
           fontSize="14"
-          fontWeight="700"
+          fontWeight="350"
           fontFamily="SUITE"
         >
           {text}
