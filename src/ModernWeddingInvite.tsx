@@ -484,7 +484,7 @@ export default function ModernWeddingInvite() {
 
             </Card>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+            <div className="grid grid-cols-1 gap-2 mt-4">
               <AccountAccordion accounts={ACCOUNTS_GROOM} role="신랑 측" bgColor="bg-sky-100" textColor="text-neutral-900" />
               <AccountAccordion accounts={ACCOUNTS_BRIDE} role="신부 측" bgColor="bg-rose-50" textColor="text-neutral-900" />
             </div>
