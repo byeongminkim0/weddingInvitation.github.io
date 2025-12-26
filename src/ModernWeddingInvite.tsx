@@ -244,7 +244,7 @@ export default function ModernWeddingInvite() {
           {/* 초대 메시지 */}
           <section ref={sections.greeting} className="px-4">
             <EllipseBadge text="INVITATION" />
-            <h1 className={`${MODERN.text.title} font-serif text-[#171717] mb-4`}>
+            <h1 className={`${MODERN.text.title} text-[#171717] mb-4`}>
               소중한 분들을 모십니다
             </h1>
             <br />
