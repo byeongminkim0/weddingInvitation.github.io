@@ -1,9 +1,72 @@
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useMemo, useRef, useState, useEffect, type ReactNode } from "react";
 import { Calendar as MapPin, User, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { TimeSince } from "./components/TimeSince";
 import { Guestbook } from "./components/Guestbook";
 // import { GuestGallery } from "./components/GuestGallery";
 import { HandwritingText } from "./components/Handwritingtext";
+
+/** ===== 스크롤 애니메이션 훅 ===== */
+function useScrollAnimation(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, isVisible };
+}
+
+/** ===== 스크롤 애니메이션 래퍼 컴포넌트 ===== */
+interface FadeInSectionProps {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+  direction?: 'up' | 'down' | 'left' | 'right' | 'none';
+}
+
+function FadeInSection({ children, className = '', delay = 0, direction = 'up' }: FadeInSectionProps) {
+  const { ref, isVisible } = useScrollAnimation(0.15);
+
+  const directionStyles = {
+    up: 'translate-y-10',
+    down: '-translate-y-10',
+    left: 'translate-x-10',
+    right: '-translate-x-10',
+    none: '',
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${className}`}
+      style={{
+        transitionDelay: `${delay}ms`,
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translate(0, 0)' : undefined,
+      }}
+      {...(!isVisible && {
+        className: `transition-all duration-700 ease-out ${directionStyles[direction]} opacity-0 ${className}`,
+      })}
+    >
+      {children}
+    </div>
+  );
+}
 
 /** ===== 디자인 토큰 ===== */
 const MODERN = {
@@ -243,33 +306,39 @@ export default function ModernWeddingInvite() {
 
           {/* 초대 메시지 */}
           <section ref={sections.greeting} className="px-4">
-            <EllipseBadge text="INVITATION" />
-            <h1 className={`${MODERN.text.title} text-[#171717] mb-4`}>
-              소중한 분들을 모십니다
-            </h1>
+            <FadeInSection>
+              <EllipseBadge text="INVITATION" />
+              <h1 className={`${MODERN.text.title} text-[#171717] mb-4`}>
+                소중한 분들을 모십니다
+              </h1>
+            </FadeInSection>
             <br />
-            <div className="text-center justify-start text-neutral-900 text-base font-normal font-['Gabia_Gosran'] leading-6">어릴 적 지나가던 작은 인사가<br />긴 시간의 여백을 건너<br />서로의 마음으로 단단히 자리하였습니다.<br />이제 저희 두 사람이<br />담담히 한 길을 약속하고자 합니다.<br /><br />그동안 보내주신<br />응원과 정을 깊이 기억하며,<br />이날 오셔서 기꺼이 내어주신 귀한 발걸음으로<br />따뜻한 축복을 보태 주신다면<br />저희에게 더없는 기쁨과 큰 힘이 될 것입니다.</div>
+            <FadeInSection delay={200}>
+              <div className="text-center justify-start text-neutral-900 text-base font-normal font-['Gabia_Gosran'] leading-6">어릴 적 지나가던 작은 인사가<br />긴 시간의 여백을 건너<br />서로의 마음으로 단단히 자리하였습니다.<br />이제 저희 두 사람이<br />담담히 한 길을 약속하고자 합니다.<br /><br />그동안 보내주신<br />응원과 정을 깊이 기억하며,<br />이날 오셔서 기꺼이 내어주신 귀한 발걸음으로<br />따뜻한 축복을 보태 주신다면<br />저희에게 더없는 기쁨과 큰 힘이 될 것입니다.</div>
+            </FadeInSection>
           </section>
 
           {/* 신랑신부 정보 */}
           <section ref={sections.profiles} className="relative mt-20 px-4">
-            <div className="grid grid-cols-2 gap-2">
-              <ProfileCard person={GROOM} role="신랑" />
-              <ProfileCard person={BRIDE} role="신부" />
-            </div>
-            {/* 중앙 하트 */}
-            <div className="w-16 h-16 absolute top-29 left-1/2 transform -translate-x-1/2 z-10">
-              <div className="">
-                <img
-                  src="/heart.svg"
-                  alt="heart"
-                  className="w-full h-auto"
-                />
+            <FadeInSection>
+              <div className="grid grid-cols-2 gap-2">
+                <ProfileCard person={GROOM} role="신랑" />
+                <ProfileCard person={BRIDE} role="신부" />
               </div>
-            </div>
+              {/* 중앙 하트 */}
+              <div className="w-16 h-16 absolute top-29 left-1/2 transform -translate-x-1/2 z-10">
+                <div className="">
+                  <img
+                    src="/heart.svg"
+                    alt="heart"
+                    className="w-full h-auto"
+                  />
+                </div>
+              </div>
+            </FadeInSection>
           </section>
 
-          <div className="mt-18 px-4">
+          <FadeInSection className="mt-18 px-4">
             <EllipseBadge text="OUR TIME" />
             <div className="text-center">
               <p className={`${MODERN.text.bodyLarge} text-black-600 mb-2 font-['Gabia_Gosran']`}>
@@ -284,31 +353,37 @@ export default function ModernWeddingInvite() {
                 <div className="text-zinc-300 text-5xl font-normal font-['Gabia_Gosran'] -ml-3">&rdquo;</div>
               </div>
             </div>
-          </div>
+          </FadeInSection>
 
           {/* 스토리 섹션 */}
           <section ref={sections.story} className="pt-15">
-            <div className="text-center justify-start text-blue-500 text-5xl font-normal font-['Gabia_Gosran']">저희 결혼해요!</div>
-            <div className="w-full">
-              <br />
-              <br />
-              <img
-                src="/story2.png"
-                alt="Our Story"
-                className="w-full h-auto"
-              />
-              <img
-                src="/story3.png"
-                alt="Our Story"
-                className="w-full h-auto"
-              />
-            </div>
+            <FadeInSection>
+              <div className="text-center justify-start text-blue-500 text-5xl font-normal font-['Gabia_Gosran']">저희 결혼해요!</div>
+            </FadeInSection>
+            <FadeInSection delay={200}>
+              <div className="w-full">
+                <br />
+                <br />
+                <img
+                  src="/story2.png"
+                  alt="Our Story"
+                  className="w-full h-auto"
+                />
+                <img
+                  src="/story3.png"
+                  alt="Our Story"
+                  className="w-full h-auto"
+                />
+              </div>
+            </FadeInSection>
           </section>
 
           {/* 갤러리 - 더 넓은 레이아웃 */}
           <section ref={sections.gallery} className="pt-15 w-screen relative left-1/2 -translate-x-1/2">
             <div className="max-w-[890px] mx-auto px-3">
-              <EllipseBadge text="GALLERY" />
+              <FadeInSection>
+                <EllipseBadge text="GALLERY" />
+              </FadeInSection>
               <div className="grid grid-cols-3 lg:grid-cols-4 gap-1.5">
                 {(showAllGallery ? galleryImages : galleryImages.slice(0, initialGalleryCount)).map((image, index) => (
                   <figure
@@ -396,15 +471,16 @@ export default function ModernWeddingInvite() {
           )}
 
           <section ref={sections.calendar} className="px-3 pt-15">
-            <Card className="p-4">
-              <div className="text-center mb-6">
-                <EllipseBadge text="WEDDING DAY" />
-                <p className={`${MODERN.text.body} text-[#171717]`}>
-                  {year}년 {month + 1}월 {date}일 토요일 오후 2시<br />
-                  {VENUE_NAME}
-                </p>
-                <div className="text-center justify-start text-neutral-900 text-2xl font-normal font-['Gabia_Gosran'] leading-10 mt-3"><img src="/noto_ring.svg" alt="ring" className="inline relative overflow-hidden w-8 h-8" />D-200</div>
-              </div>
+            <FadeInSection>
+              <Card className="p-4">
+                <div className="text-center mb-6">
+                  <EllipseBadge text="WEDDING DAY" />
+                  <p className={`${MODERN.text.body} text-[#171717]`}>
+                    {year}년 {month + 1}월 {date}일 토요일 오후 2시<br />
+                    {VENUE_NAME}
+                  </p>
+                  <div className="text-center justify-start text-neutral-900 text-2xl font-normal font-['Gabia_Gosran'] leading-10 mt-3"><img src="/noto_ring.svg" alt="ring" className="inline relative overflow-hidden w-8 h-8" />D-200</div>
+                </div>
               {/* 캘린더 */}
               <div className="mx-auto">
                 <div className="bg-white backdrop-blur-sm rounded-b-2xl overflow-hidden">
@@ -436,86 +512,99 @@ export default function ModernWeddingInvite() {
                     })}
                   </div>
                 </div>
-              </div>
-            </Card>
+                </div>
+              </Card>
+            </FadeInSection>
           </section>
 
           {/* 오시는 길 상세 (교통수단) */}
           <section ref={sections.directions} className="px-3 mt-8">
-            <h2 className={`${MODERN.text.body} text-[#171717] text-center`}>
-              오시는 길
-            </h2>
+            <FadeInSection>
+              <h2 className={`${MODERN.text.body} text-[#171717] text-center`}>
+                오시는 길
+              </h2>
+            </FadeInSection>
             <br />
-            {/* 지도 + 네비 버튼 (붙어있는 형태) */}
-            <div className="mb-4 overflow-hidden shadow-lg">
-              {/* 지도 */}
-              <div className="bg-linear-to-br from-gray-100 to-gray-50 h-64 flex flex-col items-center justify-center">
-                <MapPin className="h-10 w-10 text-gray-400" />
-                <span className={`ml-2 ${MODERN.text.body} text-gray-500`}>지도 API 연동 영역</span>
-              </div>
+            <FadeInSection delay={100}>
+              {/* 지도 + 네비 버튼 (붙어있는 형태) */}
+              <div className="mb-4 overflow-hidden shadow-lg">
+                {/* 지도 */}
+                <div className="bg-linear-to-br from-gray-100 to-gray-50 h-64 flex flex-col items-center justify-center">
+                  <MapPin className="h-10 w-10 text-gray-400" />
+                  <span className={`ml-2 ${MODERN.text.body} text-gray-500`}>지도 API 연동 영역</span>
+                </div>
 
-              {/* 네비게이션 버튼 3개 */}
-              <div className="grid grid-cols-3 bg-black h-8">
-                <a href={MAP_LINK_NAVER} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center text-white ${MODERN.text.small} hover:bg-gray-800 transition border-r border-gray-700`}>
-                  네이버지도 내비
-                </a>
-                <a href={MAP_LINK_KAKAO} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center text-white ${MODERN.text.small} hover:bg-gray-800 transition border-r border-gray-700`}>
-                  카카오맵 내비
-                </a>
-                <a href={MAP_LINK_TMAP} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center text-white ${MODERN.text.small} hover:bg-gray-800 transition`}>
-                  T맵 내비
-                </a>
+                {/* 네비게이션 버튼 3개 */}
+                <div className="grid grid-cols-3 bg-black h-8">
+                  <a href={MAP_LINK_NAVER} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center text-white ${MODERN.text.small} hover:bg-gray-800 transition border-r border-gray-700`}>
+                    네이버지도 내비
+                  </a>
+                  <a href={MAP_LINK_KAKAO} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center text-white ${MODERN.text.small} hover:bg-gray-800 transition border-r border-gray-700`}>
+                    카카오맵 내비
+                  </a>
+                  <a href={MAP_LINK_TMAP} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center text-white ${MODERN.text.small} hover:bg-gray-800 transition`}>
+                    T맵 내비
+                  </a>
+                </div>
               </div>
-            </div>
-            <Card className="p-4">
-              {/* 교통 정보 */}
-              <div className={`grid grid-cols-1 gap-3 ${MODERN.text.small}`}>
-                <InfoBox icon="🚗" title="자가용" info="[내비게이션] 제이오스티엘 입력\n[주차장] 구로기계공구상가 B,D 블록 5,6번 게이트 이용" />
-                <InfoBox icon="🚇" title="지하철" info="1호선 구로역 2,3번 출구 도보 3분" />
-                <InfoBox icon="🚌" title="셔틀버스" info="안강 한동아파트에서 오전 7시까지 집결 후 서울 출발\n제이오스티엘 정문에서 오후 4시까지 집결 후 안강 출발" />
-                <div className="justify-start text-neutral-900 text-xs font-semibold font-['Pretendard'] leading-5">제이오스티엘<br />서울 구로구 경인로 565    T. 02-2635-2222</div>
-              </div>
-            </Card>
+            </FadeInSection>
+            <FadeInSection delay={200}>
+              <Card className="p-4">
+                {/* 교통 정보 */}
+                <div className={`grid grid-cols-1 gap-3 ${MODERN.text.small}`}>
+                  <InfoBox icon="🚗" title="자가용" info="[내비게이션] 제이오스티엘 입력\n[주차장] 구로기계공구상가 B,D 블록 5,6번 게이트 이용" />
+                  <InfoBox icon="🚇" title="지하철" info="1호선 구로역 2,3번 출구 도보 3분" />
+                  <InfoBox icon="🚌" title="셔틀버스" info="안강 한동아파트에서 오전 7시까지 집결 후 서울 출발\n제이오스티엘 정문에서 오후 4시까지 집결 후 안강 출발" />
+                  <div className="justify-start text-neutral-900 text-xs font-semibold font-['Pretendard'] leading-5">제이오스티엘<br />서울 구로구 경인로 565    T. 02-2635-2222</div>
+                </div>
+              </Card>
+            </FadeInSection>
           </section>
 
           {/* 마음 전하실 곳 */}
           <section ref={sections.account} className="px-3 mt-10">
-            <Card className="p-6 text-center">
-              <EllipseBadge text="INFORMATION" />
-              <div className="text-center justify-start text-neutral-900 text-2xl font-normal font-['Gabia_Gosran']">마음 전하실 곳</div>
-              <br />
-              <div className="text-center">
-                <span className={`${MODERN.text.body}`}>
-                  멀리서도 축하의 마음을 전하고 싶으신 분들을 위해<br />
-                  아래에 계좌번호를 안내드립니다.<br />
-                  <br />
-                  직접 찾아와 주시기 어렵더라도<br />
-                  보내주시는 따뜻한 마음만으로도 큰 축복이 됩니다.<br />
-                  <br />
-                  환경을 위하여{" "}
-                </span>
+            <FadeInSection>
+              <Card className="p-6 text-center">
+                <EllipseBadge text="INFORMATION" />
+                <div className="text-center justify-start text-neutral-900 text-2xl font-normal font-['Gabia_Gosran']">마음 전하실 곳</div>
+                <br />
+                <div className="text-center">
+                  <span className={`${MODERN.text.body}`}>
+                    멀리서도 축하의 마음을 전하고 싶으신 분들을 위해<br />
+                    아래에 계좌번호를 안내드립니다.<br />
+                    <br />
+                    직접 찾아와 주시기 어렵더라도<br />
+                    보내주시는 따뜻한 마음만으로도 큰 축복이 됩니다.<br />
+                    <br />
+                    환경을 위하여{" "}
+                  </span>
 
-                <span className={`${MODERN.text.body} underline`}>
-                  화환·꽃바구니는 정중히 사양
-                </span>
+                  <span className={`${MODERN.text.body} underline`}>
+                    화환·꽃바구니는 정중히 사양
+                  </span>
 
-                <span className={`${MODERN.text.body}`}>
-                  하오니,<br />
-                  귀한 마음은 축복으로 전해 주시면 감사하겠습니다.
-                </span>
+                  <span className={`${MODERN.text.body}`}>
+                    하오니,<br />
+                    귀한 마음은 축복으로 전해 주시면 감사하겠습니다.
+                  </span>
+                </div>
+
+              </Card>
+            </FadeInSection>
+
+            <FadeInSection delay={150}>
+              <div className="grid grid-cols-1 gap-2 mt-4">
+                <AccountAccordion accounts={ACCOUNTS_GROOM} role="신랑 측" bgColor="bg-sky-100" textColor="text-neutral-900" />
+                <AccountAccordion accounts={ACCOUNTS_BRIDE} role="신부 측" bgColor="bg-rose-50" textColor="text-neutral-900" />
               </div>
-
-            </Card>
-
-            <div className="grid grid-cols-1 gap-2 mt-4">
-              <AccountAccordion accounts={ACCOUNTS_GROOM} role="신랑 측" bgColor="bg-sky-100" textColor="text-neutral-900" />
-              <AccountAccordion accounts={ACCOUNTS_BRIDE} role="신부 측" bgColor="bg-rose-50" textColor="text-neutral-900" />
-            </div>
+            </FadeInSection>
           </section>
 
           {/* 방명록 섹션 */}
           <section ref={sections.guestbook} className="px-3 mt-15 mb-15">
-            <Guestbook />
+            <FadeInSection>
+              <Guestbook />
+            </FadeInSection>
           </section>
 
           <br />
