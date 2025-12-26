@@ -3,17 +3,17 @@
 /* Google Fonts - 필기체 폰트들 */
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Pacifico&family=Allura&family=Sacramento&display=swap');
 
-/* 가비아 고스란체 - 로컬 폰트 */
-@font-face {
-  font-family: 'Gabia_Gosran';
-  src: url('/fonts/GabiaGosran.otf') format('opentype'),
-       url('/fonts/GabiaGosran.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 @layer base {
+  /* 가비아 고스란체 - 로컬 폰트 */
+  @font-face {
+    font-family: 'Gabia Gosran';
+    src: url('/fonts/GabiaGosran.otf') format('opentype'),
+         url('/fonts/GabiaGosran.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
   :root {
     --sage-bg: #ffffff;
   }

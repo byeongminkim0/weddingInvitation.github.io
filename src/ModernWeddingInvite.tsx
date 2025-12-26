@@ -115,19 +115,19 @@ export default function ModernWeddingInvite() {
     const loadFont = async () => {
       try {
         const font = new FontFace(
-          'Gabia_Gosran',
+          'Gabia Gosran',
           'url(/fonts/GabiaGosran.otf)',
           { weight: '400', style: 'normal' }
         );
-        
+
         const loadedFont = await font.load();
         document.fonts.add(loadedFont);
-        console.log('Gabia_Gosran 폰트 로드 완료');
+        console.log('Gabia Gosran 폰트 로드 완료');
       } catch (error) {
-        console.error('Gabia_Gosran 폰트 로드 실패:', error);
+        console.error('Gabia Gosran 폰트 로드 실패:', error);
       }
     };
-    
+
     loadFont();
   }, []);
 

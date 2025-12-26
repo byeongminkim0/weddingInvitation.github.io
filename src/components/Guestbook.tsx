@@ -256,7 +256,7 @@ export function Guestbook() {
       {/* 타이틀 */}
       <div className="text-center mb-6 sm:mb-8">
         <EllipseBadge text="THANK U" />
-        <div className="text-center text-neutral-900 text-2xl font-normal font-['Gabia_Gosran']">방명록</div>
+        <div className="text-center text-neutral-900 text-2xl font-normal" style={{ fontFamily: "'Gabia Gosran', serif" }}>방명록</div>
       </div>
 
       {/* 메시지 목록 */}
@@ -346,7 +346,7 @@ export function Guestbook() {
           type="button"
           onClick={() => setShowAll((v) => !v)}
           disabled={messages.length <= 1}
-          className="min-w-[120px] inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium bg-white border border-gray-300 text-gray-900 shadow-sm hover:bg-gray-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
+          className="min-w-[120px] inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-normal font-['Gabia_Gosran'] bg-white border border-gray-300 text-gray-900 shadow-sm hover:bg-gray-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {showAll ? '접기' : '전체보기'}
         </button>
@@ -354,7 +354,7 @@ export function Guestbook() {
         <button
           type="button"
           onClick={() => setShowComposer(true)} // ✅ 모달 오픈
-          className="min-w-[120px] inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium bg-white border border-gray-300 text-gray-900 shadow-sm hover:bg-gray-50 transition"
+          className="min-w-[120px] inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-normal font-['Gabia_Gosran'] bg-white border border-gray-300 text-gray-900 shadow-sm hover:bg-gray-50 transition"
         >
           작성하기
         </button>
@@ -386,9 +386,9 @@ export function Guestbook() {
             <form onSubmit={handleSubmit} className="space-y-2">
               <div className="text-center mb-6 sm:mb-8">
                 <EllipseBadge text="THANK U" />
-                <div className="text-center text-neutral-900 text-2xl font-normal font-['Gabia_Gosran']">방명록</div>
+                <div className="text-center text-neutral-900 text-2xl font-normal" style={{ fontFamily: "'Gabia Gosran', serif" }}>방명록</div>
               </div>
-              <div className="text-center justify-start text-neutral-900 text-lg font-normal font-['Gabia_Gosran']">방명록을 작성해주세요</div>
+              <div className="text-center justify-start text-neutral-900 text-lg font-normal" style={{ fontFamily: "'Gabia Gosran', serif" }}>방명록을 작성해주세요</div>
               <div>
                 <input
                   type="text"
